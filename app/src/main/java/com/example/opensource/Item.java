@@ -1,3 +1,5 @@
+package com.example.opensource;
+
 public class Item {
     private String itemName;
     private int quantity;
