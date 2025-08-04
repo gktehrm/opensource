@@ -4,13 +4,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
-public class ReceiptParser {
+        public class ReceiptParser {
 
-    public static Receipt parseFromJson(JSONObject json) {
-        Receipt receipt = new Receipt();
-        receipt.setStoreName(json.optString("storeName"));
-        receipt.setAddress(json.optString("address"));
-        receipt.setPhoneNumber(json.optString("phoneNumber"));
+            public static Receipt parseFromJson(JSONObject json) {
+                Receipt receipt = new Receipt();
+                receipt.setStoreName(json.optString("storeName"));
+                receipt.setAddress(json.optString("address"));
+                receipt.setPhoneNumber(json.optString("phoneNumber"));
         receipt.setTimestamp(json.optString("timestamp"));
 
         JSONArray list = json.optJSONArray("itemList");
