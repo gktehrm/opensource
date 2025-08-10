@@ -73,23 +73,21 @@ public class ReceiptManager {
 
     // 정렬 (거래일시 오름차순/내림차순)
     public void sortByDate(final boolean ascending) {
-        final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         Collections.sort(receipts, new Comparator<Receipt>() {
             @Override
             public int compare(Receipt r1, Receipt r2) {
                 try {
-                    Date d1 = format.parse(r1.getTimestamp());
-                    Date d2 = format.parse(r2.getTimestamp());
-
+                    Date d1 = sdf.parse(r1.getTimestamp());
+                    Date d2 = sdf.parse(r2.getTimestamp());
                     return ascending ? d1.compareTo(d2) : d2.compareTo(d1);
-
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                    return 0;  // 예외 발생 시 정렬 순서 유지
+                } catch (Exception e) {
+                    return 0;
                 }
             }
         });
+
     }
 
     // 검색 (가맹점명 포함 여부로)
