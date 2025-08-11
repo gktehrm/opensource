@@ -1,4 +1,4 @@
-package com.example.opensource;
+package com.example.opensource.file;
 
 public class ReportData {
     private String timestamp;

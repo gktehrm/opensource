@@ -1,4 +1,4 @@
-package com.example.opensource;
+package com.example.opensource.camera;
 
 import android.net.Uri;
 

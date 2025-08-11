@@ -1,4 +1,6 @@
-package com.example.opensource;
+package com.example.opensource.receipt;
+
+import com.example.opensource.receipt.entity.Receipt;
 
 import org.json.JSONException;
 import org.json.JSONArray;
@@ -9,7 +11,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 

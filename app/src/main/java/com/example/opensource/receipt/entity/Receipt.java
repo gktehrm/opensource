@@ -1,4 +1,4 @@
-package com.example.opensource;
+package com.example.opensource.receipt.entity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,11 +8,11 @@ public class Receipt {
     private String address;
     private String phoneNumber;
     private String timestamp;
-    private List<Item> itemList;
+    private List<ReceiptItem> receiptItemList;
     private int receiptTotal;
 
     public Receipt() {
-        itemList = new ArrayList<>();
+        receiptItemList = new ArrayList<>();
         receiptTotal = 0;
     }
 
@@ -29,28 +29,28 @@ public class Receipt {
     public String getTimestamp() { return timestamp; }
     public void setTimestamp(String timestamp) { this.timestamp = timestamp; }
 
-    public List<Item> getItemList() { return itemList; }
+    public List<ReceiptItem> getItemList() { return receiptItemList; }
 
     public int getReceiptTotal() { return receiptTotal; }
 
     // method
-    public void addItem(Item item) {
-        itemList.add(item);
-        receiptTotal += item.getSubTotal();
+    public void addItem(ReceiptItem receiptItem) {
+        receiptItemList.add(receiptItem);
+        receiptTotal += receiptItem.getSubTotal();
     }
 
     public void removeItem(int index) {
-        if (index >= 0 && index < itemList.size()) {
-            receiptTotal -= itemList.get(index).getSubTotal();
-            itemList.remove(index);
+        if (index >= 0 && index < receiptItemList.size()) {
+            receiptTotal -= receiptItemList.get(index).getSubTotal();
+            receiptItemList.remove(index);
         }
     }
 
-    public void updateItem(int index, Item newItem) {
-        if (index >= 0 && index < itemList.size()) {
-            receiptTotal -= itemList.get(index).getSubTotal();
-            itemList.set(index, newItem);
-            receiptTotal += newItem.getSubTotal();
+    public void updateItem(int index, ReceiptItem newReceiptItem) {
+        if (index >= 0 && index < receiptItemList.size()) {
+            receiptTotal -= receiptItemList.get(index).getSubTotal();
+            receiptItemList.set(index, newReceiptItem);
+            receiptTotal += newReceiptItem.getSubTotal();
         }
     }
 }

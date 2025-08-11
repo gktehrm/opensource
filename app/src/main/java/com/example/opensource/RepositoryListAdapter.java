@@ -1,11 +1,10 @@
-package com.example.opensource.adapter;
+package com.example.opensource;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.text.InputType;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -16,22 +15,21 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.opensource.FileDetailActivity;
-import com.example.opensource.R;
-import com.example.opensource.model.ReceiptFile;
+import com.example.opensource.repository.RepositoryActivity;
+import com.example.opensource.repository.RepositoryInfo;
 
 import java.util.List;
 
-public class FileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class RepositoryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final int TYPE_ADD = 0;
     private static final int TYPE_FOLDER = 1;
 
-    private List<ReceiptFile> fileList;
+    private List<RepositoryInfo> fileList;
     private OnAddFolderClickListener addFolderClickListener;
     private Context context;
 
-    public FileAdapter(Context context, List<ReceiptFile> fileList, OnAddFolderClickListener listener) {
+    public RepositoryListAdapter(Context context, List<RepositoryInfo> fileList, OnAddFolderClickListener listener) {
         this.context = context;
         this.fileList = fileList;
         this.addFolderClickListener = listener;
@@ -63,13 +61,13 @@ public class FileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_FOLDER) {
             FolderViewHolder folderHolder = (FolderViewHolder) holder;
-            ReceiptFile file = fileList.get(position);
+            RepositoryInfo file = fileList.get(position);
 
             folderHolder.textTitle.setText(file.getTitle());
             folderHolder.textDate.setText(file.getDate());
 
             folderHolder.itemView.setOnClickListener(v -> {
-                Intent intent = new Intent(context, FileDetailActivity.class);
+                Intent intent = new Intent(context, RepositoryActivity.class);
                 intent.putExtra("fileName", file.getTitle());  // 파일명 전달
                 context.startActivity(intent);
             });
@@ -97,7 +95,7 @@ public class FileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     // 폴더 수정 다이얼로그
     private void showEditDialog(Context context, int position) {
-        ReceiptFile file = fileList.get(position);
+        RepositoryInfo file = fileList.get(position);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("폴더 이름 수정");

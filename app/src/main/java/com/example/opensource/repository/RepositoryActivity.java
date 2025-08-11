@@ -1,4 +1,4 @@
-package com.example.opensource;
+package com.example.opensource.repository;
 
 import android.os.Bundle;
 import android.widget.ImageButton;
@@ -8,7 +8,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class FileDetailActivity extends AppCompatActivity {
+import com.example.opensource.R;
+
+public class RepositoryActivity extends AppCompatActivity {
 
     TextView tvFileName;
 

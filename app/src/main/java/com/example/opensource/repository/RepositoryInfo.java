@@ -1,10 +1,10 @@
-package com.example.opensource.model;
+package com.example.opensource.repository;
 
-public class ReceiptFile {
+public class RepositoryInfo {
     private String title;
     private String date;
 
-    public ReceiptFile(String title, String date) {
+    public RepositoryInfo(String title, String date) {
         this.title = title;
         this.date = date;
     }

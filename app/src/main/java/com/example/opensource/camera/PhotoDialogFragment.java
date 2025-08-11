@@ -1,4 +1,4 @@
-package com.example.opensource;
+package com.example.opensource.camera;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,6 +14,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.fragment.app.DialogFragment;
+
+import com.example.opensource.R;
 
 import java.io.InputStream;
 

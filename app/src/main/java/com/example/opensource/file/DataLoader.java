@@ -1,4 +1,7 @@
-package com.example.opensource;
+package com.example.opensource.file;
+
+import com.example.opensource.receipt.ReceiptManager;
+import com.example.opensource.receipt.entity.Receipt;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -7,7 +10,27 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JsonLoader {
+public class DataLoader {
+    public static List<ReportData> loadFromJson(ReceiptManager receiptManager) {
+        List<ReportData> dataList = new ArrayList<>();
+        try {
+            List<Receipt> receipts = receiptManager.getAllReceipts();
+            for (int i = 0; i < receipts.size(); i++) {
+                Receipt receipt = receipts.get(i);
+                dataList.add(new ReportData(
+                        receipt.getTimestamp(),
+                        receipt.getStoreName(),
+                        "내용",
+                        String.valueOf(receipt.getReceiptTotal()),
+                        "비고"
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return dataList;
+    }
+
     public static List<ReportData> loadFromJson(String jsonPath) {
         List<ReportData> dataList = new ArrayList<>();
         try {

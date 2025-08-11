@@ -20,7 +20,7 @@
         android:theme="@style/Theme.OpenSource"
         tools:targetApi="31">
         <activity
-            android:name=".LoginActivity"
+            android:name=".auth.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,16 +29,10 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".RegisterActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".MainActivity"
-            android:exported="true" />
-
+        <activity android:name=".auth.RegisterActivity" />
+        <activity android:name=".MainActivity" />
+        <activity android:name=".repository.RepositoryActivity" />
         <activity android:name=".MyPageActivity" />
-        <activity android:name=".FileDetailActivity" />
 
     </application>
 

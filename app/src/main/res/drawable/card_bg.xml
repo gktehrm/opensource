@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 <!-- 바닥 카드 전체 -->
-<item>
+<receiptItem>
     <shape android:shape="rectangle">
         <solid android:color="#FFFFFF"/>
         <corners android:radius="16dp"/>
     </shape>
-</item>
+</receiptItem>
 
 <!-- 상단 탭 (왼쪽에만 튀어나온 모양) -->
-<item android:left="12dp" android:top="0dp" android:right="250dp" android:bottom="80dp">
+<receiptItem android:left="12dp" android:top="0dp" android:right="250dp" android:bottom="80dp">
     <shape android:shape="rectangle">
         <solid android:color="#DDDDDD"/>
         <corners android:topLeftRadius="8dp" android:topRightRadius="0dp"/>
     </shape>
-</item>
+</receiptItem>
 </layer-list>

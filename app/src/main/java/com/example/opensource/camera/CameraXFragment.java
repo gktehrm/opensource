@@ -1,4 +1,4 @@
-package com.example.opensource;
+package com.example.opensource.camera;
 
 import android.Manifest;
 import android.content.ContentValues;
@@ -25,6 +25,7 @@ import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.opensource.R;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.text.SimpleDateFormat;

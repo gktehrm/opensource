@@ -11,8 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.opensource.adapter.FileAdapter;
-import com.example.opensource.model.ReceiptFile;
+import com.example.opensource.repository.RepositoryInfo;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,8 +22,8 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
-    private FileAdapter adapter;
-    private List<ReceiptFile> fileList;
+    private RepositoryListAdapter adapter;
+    private List<RepositoryInfo> fileList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         // position 0번에 항상 플러스 카드가 고정되도록 null 추가
         fileList.add(null);
 
-        adapter = new FileAdapter(MainActivity.this, fileList, new FileAdapter.OnAddFolderClickListener() {
+        adapter = new RepositoryListAdapter(MainActivity.this, fileList, new RepositoryListAdapter.OnAddFolderClickListener() {
             @Override
             public void onAddFolderClick() {
                 showAddFolderDialog();
@@ -70,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (!folderName.isEmpty()) {
                 String date = new SimpleDateFormat("yyyy.MM.dd a h:mm", Locale.getDefault()).format(new Date());
-                ReceiptFile newFolder = new ReceiptFile(folderName, "마지막 수정 " + date);
+                RepositoryInfo newFolder = new RepositoryInfo(folderName, "마지막 수정 " + date);
                 fileList.add(newFolder);
                 adapter.notifyItemInserted(fileList.size() - 1);
             }
