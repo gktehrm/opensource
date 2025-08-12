@@ -34,6 +34,7 @@ android {
 
 val cameraxVersion = "1.3.0"
 dependencies {
+    implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
 
     implementation(libs.appcompat)
     implementation(libs.material)
@@ -42,6 +43,11 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    val cameraxVersion = "1.3.0"
+
+    implementation("com.google.firebase:firebase-storage")
+
 
     implementation("androidx.camera:camera-core:$cameraxVersion")
     implementation("androidx.camera:camera-camera2:$cameraxVersion")

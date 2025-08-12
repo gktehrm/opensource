@@ -23,6 +23,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        com.google.firebase.FirebaseApp.initializeApp(this);
         auth = FirebaseAuth.getInstance(); // Firebase 인증 인스턴스
 
         Button loginButton = findViewById(R.id.button); // 로그인 버튼
