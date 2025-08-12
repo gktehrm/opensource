@@ -34,6 +34,9 @@
         <activity android:name=".repository.RepositoryActivity" />
         <activity android:name=".MyPageActivity" />
         <activity android:name=".file.FileGeneratorActivity" />
+        <activity android:name=".FileDetailActivity" />
+        <activity android:name=".EditInfoActivity" />
+        <activity android:name=".MyFileActivity" />
 
     </application>
 
