@@ -33,6 +33,7 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".repository.RepositoryActivity" />
         <activity android:name=".MyPageActivity" />
+        <activity android:name=".file.FileGeneratorActivity" />
 
     </application>
 

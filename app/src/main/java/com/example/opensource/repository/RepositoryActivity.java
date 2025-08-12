@@ -1,5 +1,6 @@
 package com.example.opensource.repository;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -9,6 +10,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.opensource.R;
+import com.example.opensource.file.FileGeneratorActivity;
 
 public class RepositoryActivity extends AppCompatActivity {
 
@@ -35,7 +37,7 @@ public class RepositoryActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_file_detail);
+        setContentView(R.layout.activity_repository);
 
         tvFileName = findViewById(R.id.tvFileName);
 
@@ -46,7 +48,8 @@ public class RepositoryActivity extends AppCompatActivity {
 
         ImageButton btnConvert = findViewById(R.id.btnConvertToFile);
         btnConvert.setOnClickListener(v -> {
-            // 파일 저장 기능 호출
+            Intent intent = new Intent(this, FileGeneratorActivity.class);
+            startActivity(intent);
         });
 
         ImageButton btnSort = findViewById(R.id.btnSort);
