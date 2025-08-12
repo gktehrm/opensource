@@ -27,14 +27,13 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
 val cameraxVersion = "1.3.0"
 dependencies {
-    implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
 
     implementation(libs.appcompat)
     implementation(libs.material)
@@ -57,7 +56,9 @@ dependencies {
 
     implementation("com.google.firebase:firebase-auth:21.0.1")
     implementation("com.google.firebase:firebase-firestore:24.4.5")
+    implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
 
     implementation("org.apache.poi:poi-ooxml:5.2.3")
+    implementation("com.google.guava:guava:31.1-android")
 
 }

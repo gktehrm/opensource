@@ -1,4 +1,4 @@
-package com.example.opensource;
+package com.example.opensource.firebase;
 
 import android.net.Uri;
 import android.util.Log;
@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FileStorage {
-
     public void uploadDocument(String filePath) {
         // 로그인 확인
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();

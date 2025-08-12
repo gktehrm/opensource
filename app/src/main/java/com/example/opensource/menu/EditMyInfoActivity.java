@@ -1,4 +1,4 @@
-package com.example.opensource;
+package com.example.opensource.menu;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,7 +8,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class EditInfoActivity extends AppCompatActivity {
+import com.example.opensource.R;
+
+public class EditMyInfoActivity extends AppCompatActivity {
 
     EditText etNickname;
     Button btnSave;

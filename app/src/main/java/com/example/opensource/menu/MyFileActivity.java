@@ -1,4 +1,4 @@
-package com.example.opensource;
+package com.example.opensource.menu;
 
 import android.os.Bundle;
 import android.widget.EditText;
@@ -7,6 +7,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.opensource.R;
 
 public class MyFileActivity extends AppCompatActivity {
 

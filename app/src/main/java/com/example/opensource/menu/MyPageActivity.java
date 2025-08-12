@@ -1,4 +1,4 @@
-package com.example.opensource;
+package com.example.opensource.menu;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +8,8 @@ import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.opensource.R;
 
 public class MyPageActivity extends AppCompatActivity {
 
@@ -40,7 +42,7 @@ public class MyPageActivity extends AppCompatActivity {
 
         Button btnEditInfo = findViewById(R.id.btnEditInfo);
         btnEditInfo.setOnClickListener(v -> {
-            Intent editIntent = new Intent(MyPageActivity.this, EditInfoActivity.class);
+            Intent editIntent = new Intent(MyPageActivity.this, EditMyInfoActivity.class);
             editInfoLauncher.launch(editIntent); // 새 방식으로 실행
         });
 

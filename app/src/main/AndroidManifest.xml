@@ -32,11 +32,10 @@
         <activity android:name=".auth.RegisterActivity" />
         <activity android:name=".MainActivity" />
         <activity android:name=".repository.RepositoryActivity" />
-        <activity android:name=".MyPageActivity" />
+        <activity android:name=".menu.MyPageActivity" />
         <activity android:name=".file.FileGeneratorActivity" />
-        <activity android:name=".FileDetailActivity" />
-        <activity android:name=".EditInfoActivity" />
-        <activity android:name=".MyFileActivity" />
+        <activity android:name=".menu.EditMyInfoActivity" />
+        <activity android:name=".menu.MyFileActivity" />
 
     </application>
 

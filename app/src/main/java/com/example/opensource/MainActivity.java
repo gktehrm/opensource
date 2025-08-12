@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.opensource.menu.MyPageActivity;
 import com.example.opensource.repository.RepositoryInfo;
 
 import java.text.SimpleDateFormat;
