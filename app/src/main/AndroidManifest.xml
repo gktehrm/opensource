@@ -24,6 +24,8 @@
 
         <activity android:name=".MyPageActivity" />
         <activity android:name=".FileDetailActivity" />
+        <activity android:name=".EditInfoActivity" />
+        <activity android:name=".MyFileActivity" />
 
     </application>
 
