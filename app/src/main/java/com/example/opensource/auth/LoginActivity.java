@@ -16,8 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.opensource.MainActivity;
 import com.example.opensource.R;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
 

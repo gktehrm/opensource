@@ -11,14 +11,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.opensource.MainActivity;
 import com.example.opensource.R;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private FirebaseAuth auth;
-    private FirebaseFirestore firestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +24,6 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         auth = FirebaseAuth.getInstance();
-        firestore = FirebaseFirestore.getInstance();
 
         Button registerButton = findViewById(R.id.buttonRegister);
 

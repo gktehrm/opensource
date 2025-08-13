@@ -9,7 +9,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.opensource.MainActivity;
 import com.example.opensource.R;
 
 public class MyPageActivity extends AppCompatActivity {
