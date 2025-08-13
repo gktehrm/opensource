@@ -48,7 +48,7 @@ public class RepositoryActivity extends AppCompatActivity {
 
         ImageButton btnConvert = findViewById(R.id.btnConvertToFile);
         btnConvert.setOnClickListener(v -> {
-            Intent intent = new Intent(this, FileGeneratorActivity.class);
+            Intent intent = new Intent(RepositoryActivity.this, FileGeneratorActivity.class);
             startActivity(intent);
         });
 

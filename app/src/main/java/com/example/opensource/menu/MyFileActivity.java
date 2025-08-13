@@ -15,6 +15,7 @@ public class MyFileActivity extends AppCompatActivity {
     EditText searchBar;
     ImageButton btnSort;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
