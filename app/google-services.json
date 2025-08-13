@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "534372215386",
+    "project_id": "open-531a5",
+    "storage_bucket": "open-531a5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:534372215386:android:39702f6df4ee36bea4c663",
+        "android_client_info": {
+          "package_name": "com.example.opensource"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDnoaWt7_fEBbE1TozUsy7PncS6tNUpzFg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
