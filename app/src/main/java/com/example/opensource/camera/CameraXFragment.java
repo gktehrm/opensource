@@ -16,16 +16,16 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureException;
-import androidx.camera.core.Preview;
+import androidx.camera.core.*;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.opensource.R;
+import com.example.opensource.camera.analyzer.ContourResultListener;
+import com.example.opensource.camera.analyzer.FrameAnalyzer;
+import com.example.opensource.camera.util.OpenCvImageUtils;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.text.SimpleDateFormat;
@@ -33,13 +33,14 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class CameraXFragment extends Fragment implements CameraListener {
+public class CameraXFragment extends Fragment implements CameraListener, ContourResultListener {
 
     private PreviewView previewView;
+    private OverlayView overlay;
     private Button captureButton;
     private ImageCapture imageCapture;
-
     private ExecutorService cameraExecutor;
+    private FrameAnalyzer frameAnalyzer;
 
     private final ActivityResultLauncher<String[]> permissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
@@ -59,13 +60,15 @@ public class CameraXFragment extends Fragment implements CameraListener {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         previewView = view.findViewById(R.id.previewView);
+        overlay = view.findViewById(R.id.overlay);
         captureButton = view.findViewById(R.id.capture_button);
 
         cameraExecutor = Executors.newSingleThreadExecutor();
+        frameAnalyzer = new FrameAnalyzer(this); // 분석 결과 콜백: 이 Fragment
 
         requestPermissionsAndStartCamera();
-
         captureButton.setOnClickListener(v -> takePhoto());
+        overlay.post(() -> overlay.debugDrawTestBox());
     }
 
     private void requestPermissionsAndStartCamera() {
@@ -91,6 +94,14 @@ public class CameraXFragment extends Fragment implements CameraListener {
                         .setTargetRotation(requireActivity().getWindowManager().getDefaultDisplay().getRotation())
                         .build();
 
+                ImageAnalysis analysis = new ImageAnalysis.Builder()
+                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                        .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
+                        .setTargetResolution(new android.util.Size(1280, 720)) // android.util.Size(완전수식)
+                        .build();
+
+                analysis.setAnalyzer(cameraExecutor, frameAnalyzer);
+
                 CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
                 cameraProvider.unbindAll();
@@ -98,7 +109,8 @@ public class CameraXFragment extends Fragment implements CameraListener {
                         getViewLifecycleOwner(),
                         cameraSelector,
                         preview,
-                        imageCapture
+                        imageCapture,
+                        analysis
                 );
 
                 preview.setSurfaceProvider(previewView.getSurfaceProvider());
@@ -112,7 +124,6 @@ public class CameraXFragment extends Fragment implements CameraListener {
     private void takePhoto() {
         if (imageCapture == null) return;
 
-        // 갤러리용 저장 설정
         String name = "photo_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(System.currentTimeMillis());
         ContentValues contentValues = new ContentValues();
         contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
@@ -139,7 +150,6 @@ public class CameraXFragment extends Fragment implements CameraListener {
                             dialog.show(getParentFragmentManager(), "PhotoDialog");
                         }
                     }
-
                     @Override
                     public void onError(@NonNull ImageCaptureException exception) {
                         Toast.makeText(getContext(), "❌ 저장 실패", Toast.LENGTH_SHORT).show();
@@ -149,16 +159,36 @@ public class CameraXFragment extends Fragment implements CameraListener {
         );
     }
 
+    // ====== CameraListener ======
     @Override
     public void onRetryCapture() {
         Toast.makeText(getContext(), "↩ 다시 찍기", Toast.LENGTH_SHORT).show();
-        // CameraX는 자동으로 프리뷰 유지됨 → 추가 작업 불필요
     }
 
     @Override
     public void onConfirmCapture(Uri uri) {
         Toast.makeText(getContext(), "✔ 계속 진행됨: " + uri, Toast.LENGTH_SHORT).show();
-        // TODO: 업로드, 다음 화면 이동 등
+    }
+
+    // ====== ContourResultListener (실시간 오버레이 갱신) ======
+    @Override
+    public void onContourResult(float[] xs, float[] ys, int imgW, int imgH) {
+        if (overlay == null) return;
+        float[] mapped = OpenCvImageUtils.mapToOverlay(xs, ys, imgW, imgH, overlay.getWidth(), overlay.getHeight());
+        int n = mapped.length / 2;
+        float[] mx = new float[n];
+        float[] my = new float[n];
+        for (int i = 0, j = 0; i < mapped.length; i += 2, j++) {
+            mx[j] = mapped[i];
+            my[j] = mapped[i + 1];
+        }
+        requireActivity().runOnUiThread(() -> overlay.setMappedContour(mx, my));
+    }
+
+    @Override
+    public void onNoContour(int imgW, int imgH) {
+        if (overlay == null) return;
+        requireActivity().runOnUiThread(() -> overlay.setMappedContour(null, null));
     }
 
     @Override

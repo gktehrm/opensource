@@ -10,6 +10,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.opensource.R;
+import com.example.opensource.camera.CameraActivity;
 import com.example.opensource.file.FileGeneratorActivity;
 
 public class RepositoryActivity extends AppCompatActivity {
@@ -43,7 +44,9 @@ public class RepositoryActivity extends AppCompatActivity {
 
         ImageButton btnOcrScan = findViewById(R.id.btnOcrScan);
         btnOcrScan.setOnClickListener(v -> {
-            // OCR 기능 호출
+            Intent intent = new Intent(this, CameraActivity.class);
+            startActivity(intent);
+
         });
 
         ImageButton btnConvert = findViewById(R.id.btnConvertToFile);
@@ -60,7 +63,5 @@ public class RepositoryActivity extends AppCompatActivity {
         if (fileName != null) {
             tvFileName.setText(fileName);
         }
-
-        // 버튼 클릭 리스너는 다른 팀원이 구현 예정이므로 생략
     }
 }
