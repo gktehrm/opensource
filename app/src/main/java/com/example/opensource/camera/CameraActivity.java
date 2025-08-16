@@ -35,8 +35,10 @@ public class CameraActivity extends AppCompatActivity {
     public static final String EXTRA_ANALYSIS_JSON = "analysisJson";
     public static final String EXTRA_IMAGE_URI = "imageUri";
 
-    private String lastCapturedImageUri;
     private View processingLayout;
+
+    public static final String TAG_CAMERA = "TAG_CAMERA";
+    private boolean isProcessing = false;   // ⬅ 중복 호출 방지
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,27 +50,37 @@ public class CameraActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.camera_fragment_container, new CameraXFragment())
+                    .replace(R.id.camera_fragment_container, new CameraXFragment(), TAG_CAMERA) // ⬅ 태그 부여
                     .commit();
         }
     }
 
-    public void onCameraResult(Mat result, @Nullable String imageUriString){
-        this.lastCapturedImageUri = imageUriString;
+    public void onCameraResult(Mat result){
+        if (isProcessing) { // ⬅ 여러 번 들어오지 않게
+            result.release();
+            return;
+        }
+        isProcessing = true;
 
-        // 카메라 UI 숨기고 "처리중" 표시
+        // (1) 카메라 프래그먼트 제거/카메라 해제
+        var frag = getSupportFragmentManager().findFragmentByTag(TAG_CAMERA);
+        if (frag instanceof CameraXFragment) {
+            ((CameraXFragment) frag).stopCamera(); // ⬅ 아래 3)에서 추가
+        }
+        // UI에서 프리뷰 숨김 & 처리중 표시
         findViewById(R.id.camera_fragment_container).setVisibility(View.GONE);
         processingLayout.setVisibility(View.VISIBLE);
 
+        // (2) 분석용 비트맵 변환
         Bitmap bitmap = Bitmap.createBitmap(result.cols(), result.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(result, bitmap);
         result.release();
 
+        // (3) Gemini 호출
         String prompt = "보낸 이미지는 영수증입니다. " +
                 "다음 JSON 스키마로만 응답하세요. " +
                 "{\"storeName\":\"\",\"address\":\"\",\"phoneNumber\":\"\",\"timestamp\":\"yyyy-MM-dd HH:mm:ss\"," +
                 "\"paymentMethod\":\"\",\"userInformation\":\"\",\"itemList\":[{\"productName\":\"\",\"quantity\":1,\"unitPrice\":1000}],\"receiptTotal\":0}";
-
         analyzeBitmapWithGemini(bitmap, prompt);
     }
 
@@ -90,7 +102,7 @@ public class CameraActivity extends AppCompatActivity {
                 Log.d("Analysis Result", analysisResult);
                 Intent data = new Intent();
                 data.putExtra(EXTRA_ANALYSIS_JSON, analysisResult);
-                if (lastCapturedImageUri != null) data.putExtra(EXTRA_IMAGE_URI, lastCapturedImageUri);
+//                if (lastCapturedImageUri != null) data.putExtra(EXTRA_IMAGE_URI, lastCapturedImageUri);
                 setResult(RESULT_OK, data);
                 finish(); // ReceiptActivity로 복귀
             }

@@ -3,10 +3,16 @@ package com.example.opensource.camera;
 import android.Manifest;
 import android.content.ContentValues;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +26,7 @@ import androidx.camera.core.*;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 import com.example.opensource.R;
@@ -28,8 +35,14 @@ import com.example.opensource.camera.analyzer.FrameAnalyzer;
 import com.example.opensource.camera.util.OpenCvImageUtils;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -43,6 +56,9 @@ public class CameraXFragment extends Fragment implements CameraListener, Contour
     private ImageCapture imageCapture;
     private ExecutorService cameraExecutor;
     private FrameAnalyzer frameAnalyzer;
+    private ProcessCameraProvider cameraProvider;   // ⬅ 추가
+    private ImageAnalysis analysis;                 // ⬅ 나중에 clear를 위해 보관
+    private boolean isStopped = false;              // ⬅ 중복 방지
 
     private final ActivityResultLauncher<String[]> permissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
@@ -88,7 +104,7 @@ public class CameraXFragment extends Fragment implements CameraListener, Contour
 
         cameraProviderFuture.addListener(() -> {
             try {
-                ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+                cameraProvider = cameraProviderFuture.get(); // ⬅ 필드에 보관
 
                 Preview preview = new Preview.Builder().build();
                 imageCapture = new ImageCapture.Builder()
@@ -96,10 +112,10 @@ public class CameraXFragment extends Fragment implements CameraListener, Contour
                         .setTargetRotation(requireActivity().getWindowManager().getDefaultDisplay().getRotation())
                         .build();
 
-                ImageAnalysis analysis = new ImageAnalysis.Builder()
+                analysis = new ImageAnalysis.Builder()
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
-                        .setTargetResolution(new android.util.Size(1280, 720)) // android.util.Size(완전수식)
+                        .setTargetResolution(new android.util.Size(1280, 720))
                         .build();
 
                 analysis.setAnalyzer(cameraExecutor, frameAnalyzer);
@@ -124,83 +140,120 @@ public class CameraXFragment extends Fragment implements CameraListener, Contour
         previewView.setScaleType(PreviewView.ScaleType.FILL_CENTER);
     }
 
+    public void stopCamera() {
+        if (isStopped) return;
+        isStopped = true;
+        try {
+            if (analysis != null) {
+                analysis.clearAnalyzer();
+                analysis = null;
+            }
+            if (cameraProvider != null) {
+                cameraProvider.unbindAll();
+            }
+        } catch (Exception ignored) {}
+        // 실행 스레드도 종료
+        if (cameraExecutor != null && !cameraExecutor.isShutdown()) {
+            cameraExecutor.shutdown();
+        }
+    }
+
     private void takePhoto() {
         if (imageCapture == null) return;
 
-        String name = "photo_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(System.currentTimeMillis());
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
-        contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/InsectApp");
-
-        Uri savedUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        ImageCapture.OutputFileOptions outputOptions = new ImageCapture.OutputFileOptions.Builder(
-                requireContext().getContentResolver(),
-                savedUri,
-                contentValues
-        ).build();
-
         imageCapture.takePicture(
-                outputOptions,
-                ContextCompat.getMainExecutor(requireContext()),
-                new ImageCapture.OnImageSavedCallback() {
+                cameraExecutor,
+                new ImageCapture.OnImageCapturedCallback() {
+                    @ExperimentalGetImage
                     @Override
-                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                        Uri uri = outputFileResults.getSavedUri();
-                        if (uri != null) {
-                            // 1) 최근 quad 가져오기
+                    public void onCaptureSuccess(@NonNull ImageProxy image) {
+                        Bitmap bitmap = null;
+                        try {
+                            // 1. JPEG → byte[]
+                            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+                            byte[] bytes = new byte[buffer.remaining()];
+                            buffer.get(bytes);
+
+                            // 2. EXIF Orientation 추출
+                            int exifRotation = 0;
+                            try (InputStream is = new ByteArrayInputStream(bytes)) {
+                                ExifInterface exif = new ExifInterface(is);
+                                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                                switch (orientation) {
+                                    case ExifInterface.ORIENTATION_ROTATE_90: exifRotation = 90; break;
+                                    case ExifInterface.ORIENTATION_ROTATE_180: exifRotation = 180; break;
+                                    case ExifInterface.ORIENTATION_ROTATE_270: exifRotation = 270; break;
+                                }
+                            }
+
+                            // 3. BitmapFactory로 디코딩
+                            bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                            // 4. 필요하면 Bitmap에 회전 보정 적용
+                            if (exifRotation != 0 && bitmap != null) {
+                                Matrix matrix = new Matrix();
+                                matrix.postRotate(exifRotation);
+                                bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                            }
+
+                            // 5. Bitmap → Mat
+                            Mat original = new Mat();
+                            Utils.bitmapToMat(bitmap, original);
+
+                            // 6. 외곽선 4점
                             float[] qx = frameAnalyzer.getLastQuadXs();
                             float[] qy = frameAnalyzer.getLastQuadYs();
 
+                            Mat warped = null;
                             if (qx != null && qy != null && qx.length == 4 && qy.length == 4) {
-                                // 2) Uri → Mat(BGR)
-                                Mat original = com.example.opensource.camera.util.OpenCvImageUtils.uriToBgr(requireContext(), uri);
-                                if (original != null && !original.empty()) {
-                                    // 3) 원근 보정
-                                    Mat warped = com.example.opensource.camera.processing.RectifyUtils
-                                            .rectifyWithQuad(original, qx, qy);
-
-                                    // 4) 같은 Uri에 덮어쓰기 (JPEG 95)
-                                    boolean ok = com.example.opensource.camera.util.OpenCvImageUtils
-                                            .saveMatToUri(requireContext(), uri, warped, 95);
-
-                                    original.release(); warped.release();
-                                    if (!ok) {
-                                        Toast.makeText(getContext(), "원근변환 저장 실패(원본 표시)", Toast.LENGTH_SHORT).show();
-                                    }
-                                } else {
-                                    Toast.makeText(getContext(), "이미지 로드 실패(원본 표시)", Toast.LENGTH_SHORT).show();
-                                }
-                            } else {
-                                Toast.makeText(getContext(), "문서 외곽 4점을 찾지 못해 원본을 표시합니다", Toast.LENGTH_SHORT).show();
+                                warped = com.example.opensource.camera.processing.RectifyUtils.rectifyWithQuad(original, qx, qy);
                             }
 
-                            // 5) 다이얼로그 표시 (uri는 보정본 또는 원본)
-                            Toast.makeText(getContext(), "✅ 저장됨(원근 보정 적용)", Toast.LENGTH_SHORT).show();
-                            PhotoDialogFragment dialog = PhotoDialogFragment.newInstance(uri.toString());
-                            dialog.show(getParentFragmentManager(), "PhotoDialog");
+                            // 7. Mat → Bitmap 변환 (보정 성공시)
+                            if (warped != null && !warped.empty()) {
+                                Bitmap warpedBitmap = Bitmap.createBitmap(warped.cols(), warped.rows(), Bitmap.Config.ARGB_8888);
+                                Utils.matToBitmap(warped, warpedBitmap);
+                                warped.release();
+                                bitmap = warpedBitmap;
+                            }
+                            original.release();
+
+                            // 8. 미리보기
+                            Bitmap finalBitmap = bitmap;
+                            requireActivity().runOnUiThread(() -> {
+                                PhotoPreviewDialogFragment dialog = PhotoPreviewDialogFragment.newInstance(finalBitmap);
+                                dialog.setTargetFragment(CameraXFragment.this, 0);
+                                dialog.show(getParentFragmentManager(), "PhotoPreview");
+                            });
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            requireActivity().runOnUiThread(() ->
+                                    Toast.makeText(getContext(), "사진 처리 중 오류", Toast.LENGTH_SHORT).show());
+                        } finally {
+                            image.close();
                         }
                     }
 
-                    @Override
-                    public void onError(@NonNull ImageCaptureException exception) {
-                        Toast.makeText(getContext(), "❌ 저장 실패", Toast.LENGTH_SHORT).show();
-                        exception.printStackTrace();
-                    }
+
                 }
         );
     }
 
+
     // ====== CameraListener ======
     @Override
     public void onRetryCapture() {
-        Toast.makeText(getContext(), "↩ 다시 찍기", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "다시 찍기", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onConfirmCapture(Uri uri) {
-        Toast.makeText(getContext(), "✔ 계속 진행됨: " + uri, Toast.LENGTH_SHORT).show();
+    public void onConfirmCapture(Bitmap bitmap) {
+        // CameraActivity로 결과 전달 (상위 Activity에서 처리)
+        CameraActivity activity = (CameraActivity) requireActivity();
+        activity.onCameraResult(OpenCvImageUtils.bitmapToMat(bitmap));
     }
+
 
     @Override
     public void onContourResult(float[] xs, float[] ys, int imgW, int imgH) {
@@ -231,7 +284,7 @@ public class CameraXFragment extends Fragment implements CameraListener, Contour
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (cameraExecutor != null) cameraExecutor.shutdown();
+        stopCamera(); // 안전하게 한번 더
     }
 
 

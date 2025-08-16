@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.opensource.R;
+import com.example.opensource.file.FileGeneratorActivity;
 import com.example.opensource.receipt.ReceiptActivity;
 import com.example.opensource.receipt.ReceiptAdapter;
 import com.example.opensource.receipt.ReceiptManager;
@@ -49,14 +50,20 @@ public class RepositoryActivity extends AppCompatActivity {
 
     private final ActivityResultLauncher<Intent> createLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                android.util.Log.d("CreateFlow", "onActivityResult create, code=" + result.getResultCode()
+                        + ", data=" + result.getData());
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                     Receipt created = (Receipt) result.getData().getSerializableExtra(EXTRA_RECEIPT);
+                    android.util.Log.d("CreateFlow", "created receipt = " + created);
                     if (created != null) {
                         receiptManager.addReceipt(created);
                         updateReceiptListUI();
+                    } else {
+                        android.widget.Toast.makeText(this, "생성 결과에 영수증 데이터가 없습니다.", android.widget.Toast.LENGTH_SHORT).show();
                     }
                 }
             });
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,8 +100,7 @@ public class RepositoryActivity extends AppCompatActivity {
 
         ImageButton btnConvert = findViewById(R.id.btnConvertToFile);
         btnConvert.setOnClickListener(v -> {
-            // 기존 코드 유지
-            // startActivity(new Intent(this, FileGeneratorActivity.class));
+             startActivity(new Intent(this, FileGeneratorActivity.class));
         });
 
         ImageButton btnSort = findViewById(R.id.btnSort);

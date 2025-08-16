@@ -53,30 +53,6 @@ public class OpenCvImageUtils {
         return out;
     }
 
-    /**
-     * (선택) FIT_CENTER(레터박스)용 매핑.
-     * PreviewView.ScaleType이 FIT_CENTER라면 이걸 사용.
-     */
-    public static float[] mapToOverlayLetterbox(float[] xs, float[] ys,
-                                                int imgW, int imgH,
-                                                int viewW, int viewH) {
-        if (xs == null || ys == null) return new float[0];
-        if (xs.length != ys.length || xs.length == 0) return new float[0];
-        if (imgW <= 0 || imgH <= 0 || viewW <= 0 || viewH <= 0) return new float[0];
-
-        float scale = Math.min(viewW / (float) imgW, viewH / (float) imgH);
-        float dx = (viewW - imgW * scale) * 0.5f; // 레터박스 여백(+)
-        float dy = (viewH - imgH * scale) * 0.5f;
-
-        int n = xs.length;
-        float[] out = new float[n * 2];
-        for (int i = 0, j = 0; i < n; i++) {
-            out[j++] = xs[i] * scale + dx;
-            out[j++] = ys[i] * scale + dy;
-        }
-        return out;
-    }
-
     /** ImageProxy → BGR(Mat), 회전보정 포함 */
     @androidx.camera.core.ExperimentalGetImage
     public static Mat imageProxyToBgr(ImageProxy imageProxy) {
@@ -95,6 +71,12 @@ public class OpenCvImageUtils {
             bgr = rotateMat(bgr, rot);
         }
         return bgr;
+    }
+
+    public static Mat bitmapToMat(Bitmap bmp) {
+        Mat mat = new Mat();
+        Utils.bitmapToMat(bmp, mat);
+        return mat;
     }
 
     /** 회전 보정 */

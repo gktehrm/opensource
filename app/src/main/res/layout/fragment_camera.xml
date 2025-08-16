@@ -17,7 +17,7 @@
 
     <Button
         android:id="@+id/capture_button"
-        android:layout_width="72dp"
+        android:layout_width="150dp"
         android:layout_height="72dp"
         android:layout_gravity="center|bottom"
         android:layout_marginBottom="32dp"

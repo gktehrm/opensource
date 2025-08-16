@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.*;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -34,6 +35,54 @@ public class ReceiptActivity extends AppCompatActivity {
     private int mode;   // create/edit
     private int index;  // 편집 시 원본 인덱스
 
+    /** 코드펜스, BOM, 스마트쿼트 제거 등 정리 */
+    @Nullable
+    private String normalizeAndExtractJsonObject(@Nullable String raw) {
+        if (raw == null) return null;
+        String s = raw.trim();
+
+        // 1) 코드펜스 제거 ``` 또는 ```json
+        s = s.replaceAll("(?is)```json", "")
+                .replaceAll("(?is)```", "")
+                .trim();
+
+        // 2) 따옴표 정규화(스마트쿼트 → ASCII)
+        s = s.replace('“','"').replace('”','"')
+                .replace('‘','\'').replace('’','\'');
+
+        // 3) BOM 제거
+        if (!s.isEmpty() && s.charAt(0) == '\uFEFF') s = s.substring(1);
+
+        // 4) 문자열 안에서 최초 '{'부터 짝이 맞는 '}'까지 추출(설명 문구 제거용)
+        int start = s.indexOf('{');
+        if (start < 0) return null;
+
+        int depth = 0;
+        boolean inStr = false;
+        char prev = 0;
+        for (int i = start; i < s.length(); i++) {
+            char c = s.charAt(i);
+
+            // 문자열 내부 처리(따옴표 이스케이프 고려)
+            if (c == '"' && prev != '\\') {
+                inStr = !inStr;
+            }
+
+            if (!inStr) {
+                if (c == '{') depth++;
+                else if (c == '}') {
+                    depth--;
+                    if (depth == 0) {
+                        return s.substring(start, i + 1).trim();
+                    }
+                }
+            }
+            prev = c;
+        }
+        return null; // 짝이 안 맞으면 null
+    }
+
+
     private final ActivityResultLauncher<Intent> cameraLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
@@ -41,9 +90,13 @@ public class ReceiptActivity extends AppCompatActivity {
                     String imageUri = result.getData().getStringExtra(CameraActivity.EXTRA_IMAGE_URI);
                     try {
                         if (analysisJson != null) {
-                            JSONObject obj = new JSONObject(analysisJson);
+                            String jsonStr = normalizeAndExtractJsonObject(analysisJson);
+                            if (jsonStr == null) {
+                                throw new org.json.JSONException("No JSON object found in response");
+                            }
+                            JSONObject obj = new JSONObject(jsonStr);
                             Receipt parsed = ReceiptParser.parseFromJson(obj);
-                            mergeReceipt(parsed); // OCR 결과를 현재 Receipt에 병합
+                            mergeReceipt(parsed); // OCR 결과 병합
                             bindReceiptToViews();
                         }
                         if (imageUri != null) {
@@ -51,7 +104,8 @@ public class ReceiptActivity extends AppCompatActivity {
                             setImagePreview(imageUri);
                         }
                     } catch (Exception e) {
-                        Toast.makeText(this, "분석 결과 처리 중 오류", Toast.LENGTH_SHORT).show();
+                        Log.e("분석결과처리오류", String.valueOf(e));
+                        Toast.makeText(this, "분석 결과 처리 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
