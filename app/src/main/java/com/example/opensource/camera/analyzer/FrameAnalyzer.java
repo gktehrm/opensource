@@ -28,7 +28,6 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
     private final AtomicBoolean busy = new AtomicBoolean(false);
 
     private float[] lastQuadXs, lastQuadYs; // bestScreen(4점)
-    private int lastSrcW, lastSrcH;
 
     public FrameAnalyzer(ContourResultListener listener) {
         this.listener = listener;
@@ -111,8 +110,6 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
                 if (qx.length >= 4) {
                     lastQuadXs = new float[]{qx[0], qx[1], qx[2], qx[3]};
                     lastQuadYs = new float[]{qy[0], qy[1], qy[2], qy[3]};
-                    lastSrcW = srcW;
-                    lastSrcH = srcH;
                 }
             }
             if (pick != null) {
@@ -140,6 +137,4 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
 
     public synchronized float[] getLastQuadXs() { return lastQuadXs; }
     public synchronized float[] getLastQuadYs() { return lastQuadYs; }
-    public synchronized int getLastSrcW() { return lastSrcW; }
-    public synchronized int getLastSrcH() { return lastSrcH; }
 }

@@ -1,5 +1,4 @@
-// com/example/opensource/receipt/ReceiptAdapter.java
-package com.example.opensource.receipt;
+package com.example.opensource.repository;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +41,8 @@ public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.VH> {
     public void onBindViewHolder(@NonNull VH h, int pos) {
         Receipt r = data.get(pos);
         h.title.setText(r.getStoreName());
-        h.sub.setText(r.getTimestamp() + " • " + r.getReceiptTotal() + "원");
+        h.date.setText(r.getTimestamp());
+        h.sub.setText(r.getReceiptTotal() + "원");
         h.itemView.setOnClickListener(v -> {
             if (listener != null) listener.onClick(pos, r);
         });
@@ -52,10 +52,11 @@ public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.VH> {
     public int getItemCount() { return data == null ? 0 : data.size(); }
 
     static class VH extends RecyclerView.ViewHolder {
-        TextView title, sub;
+        TextView title, date, sub;
         VH(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.tvStoreName);
+            date = itemView.findViewById(R.id.tvReceiptDate);
             sub = itemView.findViewById(R.id.tvReceiptTotal);
         }
     }

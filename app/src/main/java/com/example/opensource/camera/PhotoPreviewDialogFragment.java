@@ -13,7 +13,6 @@ import androidx.fragment.app.DialogFragment;
 import com.example.opensource.R;
 
 public class PhotoPreviewDialogFragment extends DialogFragment {
-    private static final String ARG_BITMAP = "bitmap_arg";
     private Bitmap previewBitmap;
 
     public static PhotoPreviewDialogFragment newInstance(Bitmap bitmap) {

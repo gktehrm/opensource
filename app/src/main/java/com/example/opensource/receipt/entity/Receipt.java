@@ -17,8 +17,7 @@ public class Receipt implements Serializable {
     private String paymentMethod;
     private String userInformation;
 
-    // 이미지: Intent로 주고받기 위해 Bitmap 대신 Uri String 권장
-    private String imageUri; // content://... 또는 file://...
+    private String imageUri;
 
     public Receipt() {
         receiptItemList = new ArrayList<>();

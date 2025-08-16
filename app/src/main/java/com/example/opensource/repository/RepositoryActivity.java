@@ -1,4 +1,3 @@
-// com/example/opensource/repository/RepositoryActivity.java
 package com.example.opensource.repository;
 
 import android.content.Intent;
@@ -16,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.opensource.R;
 import com.example.opensource.file.FileGeneratorActivity;
 import com.example.opensource.receipt.ReceiptActivity;
-import com.example.opensource.receipt.ReceiptAdapter;
 import com.example.opensource.receipt.ReceiptManager;
 import com.example.opensource.receipt.entity.Receipt;
 
@@ -30,7 +28,7 @@ public class RepositoryActivity extends AppCompatActivity {
     public static final int MODE_CREATE = 0;
     public static final int MODE_EDIT = 1;
 
-    private TextView tvFileName, tvNoReceipt;
+    private TextView tvNoReceipt;
     private ReceiptManager receiptManager;
     private RecyclerView recyclerView;
     private ReceiptAdapter receiptAdapter;
@@ -70,7 +68,7 @@ public class RepositoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_repository);
 
-        tvFileName = findViewById(R.id.tvFileName);
+        TextView tvFileName = findViewById(R.id.tvFileName);
         tvNoReceipt = findViewById(R.id.tvNoReceipt);
 
         receiptManager = new ReceiptManager();

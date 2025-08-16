@@ -1,11 +1,14 @@
 package com.example.opensource.camera;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
 import android.view.View;
+
+import androidx.annotation.NonNull;
 
 public class OverlayView extends View {
     private float[] mappedXs = null;
@@ -16,7 +19,7 @@ public class OverlayView extends View {
         super(c, a);
         stroke.setStyle(Paint.Style.STROKE);
         stroke.setStrokeWidth(6f);
-        stroke.setColor(0xFFFF3B30); // 빨강
+        stroke.setColor(0xFFFF3B30);
     }
 
     public void setMappedContour(float[] xs, float[] ys) {
@@ -26,10 +29,10 @@ public class OverlayView extends View {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
         if (mappedXs == null || mappedYs == null || mappedXs.length < 4) return;
-        Path p = new Path();
+        @SuppressLint("DrawAllocation") Path p = new Path();
         p.moveTo(mappedXs[0], mappedYs[0]);
         for (int i = 1; i < mappedXs.length; i++) p.lineTo(mappedXs[i], mappedYs[i]);
         p.close();

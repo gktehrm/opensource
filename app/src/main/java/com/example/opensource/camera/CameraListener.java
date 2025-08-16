@@ -1,7 +1,6 @@
 package com.example.opensource.camera;
 
 import android.graphics.Bitmap;
-import android.net.Uri;
 
 public interface CameraListener {
     void onRetryCapture();

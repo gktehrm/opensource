@@ -3,6 +3,8 @@ package com.example.opensource.camera.processing;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 
+import java.util.Comparator;
+
 public class RectifyUtils {
 
     /** quad(4점: tl,tr,br,bl) 순서로 정렬 */
@@ -13,7 +15,7 @@ public class RectifyUtils {
 
         // 1) 먼저 x로 정렬 → 좌측 2개, 우측 2개로 분리
         Point[] pts = ptsIn.clone();
-        java.util.Arrays.sort(pts, (a,b)-> Double.compare(a.x, b.x));
+        java.util.Arrays.sort(pts, Comparator.comparingDouble(a -> a.x));
         Point[] left  = new Point[]{ pts[0], pts[1] };
         Point[] right = new Point[]{ pts[2], pts[3] };
 

@@ -1,22 +1,18 @@
 package com.example.opensource.camera.util;
 
-import android.content.ContentResolver;
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.ExifInterface;
 import android.media.Image;
-import android.net.Uri;
-import android.util.Log;
 
 import androidx.camera.core.ImageProxy;
+import androidx.exifinterface.media.ExifInterface;
 
 import org.opencv.android.Utils;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
 
 public class OpenCvImageUtils {
 
@@ -139,93 +135,23 @@ public class OpenCvImageUtils {
         return new float[][]{xs, ys};
     }
 
-    /** 분석 이미지 좌표 → 오버레이 뷰 좌표 (letterbox 보정) */
-    public static float[] mapToOverlay(float[] xs, float[] ys, int imgW, int imgH, int viewW, int viewH) {
-        int n = xs.length;
-        float[] out = new float[n * 2];
-        float fImgW = imgW, fImgH = imgH;
-        float scale = Math.min(viewW / fImgW, viewH / fImgH);
-        float dx = (viewW - fImgW * scale) / 2f;
-        float dy = (viewH - fImgH * scale) / 2f;
-        for (int i = 0, j = 0; i < n; i++) {
-            out[j++] = xs[i] * scale + dx;
-            out[j++] = ys[i] * scale + dy;
-        }
-        return out;
-    }
-    /** Uri → BGR(Mat) */
-    public static Mat uriToBgr(Context ctx, Uri uri) {
-        try {
-            ContentResolver cr = ctx.getContentResolver();
-
-            // 1) Bitmap 로드
-            Bitmap bmp = BitmapFactory.decodeStream(cr.openInputStream(uri));
-            if (bmp == null) return null;
-
-            // 2) EXIF Orientation 읽기
-            int exifDeg = 0;
-            try (InputStream is = cr.openInputStream(uri)) {
-                if (is != null) {
-                    ExifInterface exif = new ExifInterface(is);
-                    int ori = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-                    exifDeg = switch (ori) {
-                        case ExifInterface.ORIENTATION_ROTATE_90 -> 90;
-                        case ExifInterface.ORIENTATION_ROTATE_180 -> 180;
-                        case ExifInterface.ORIENTATION_ROTATE_270 -> 270;
-                        default -> exifDeg;
-                    };
-                }
-            } catch (Exception ignored) {}
-
-            // 3) Bitmap → Mat(RGBA)
-            Mat rgba = new Mat(bmp.getHeight(), bmp.getWidth(), CvType.CV_8UC4);
-            Utils.bitmapToMat(bmp, rgba);
-
-            // 4) EXIF 각도만큼 픽셀 회전 적용하여 "upright" 만들기
-            if (exifDeg != 0) {
-                Mat rotated = new Mat();
-                switch (exifDeg) {
-                    case 90:  Core.rotate(rgba, rotated, Core.ROTATE_90_CLOCKWISE); break;
-                    case 180: Core.rotate(rgba, rotated, Core.ROTATE_180); break;
-                    case 270: Core.rotate(rgba, rotated, Core.ROTATE_90_COUNTERCLOCKWISE); break;
-                }
-                rgba.release();
-                rgba = rotated;
+    public static int getExifRotation(byte[] bytes) throws IOException {
+        int exifRotation = 0;
+        try (InputStream is = new ByteArrayInputStream(bytes)) {
+            ExifInterface exif = new ExifInterface(is);
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    exifRotation = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    exifRotation = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    exifRotation = 270;
+                    break;
             }
-
-            // 5) RGBA → BGR
-            Mat bgr = new Mat();
-            Imgproc.cvtColor(rgba, bgr, Imgproc.COLOR_RGBA2BGR);
-            rgba.release();
-            return bgr;
-
-        } catch (Exception e) {
-            Log.e("OpenCvImageUtils", Objects.requireNonNull(e.getMessage()));
-            return null;
         }
-    }
-
-    /** BGR(Mat) → 같은 Uri로 JPEG 덮어쓰기 */
-    public static boolean saveMatToUri(Context ctx, Uri uri, Mat bgr, int jpegQuality /*0..100*/) {
-        try {
-            // BGR → RGBA → Bitmap → JPEG
-            Mat rgba = new Mat();
-            Imgproc.cvtColor(bgr, rgba, Imgproc.COLOR_BGR2RGBA);
-            Bitmap bmp = Bitmap.createBitmap(rgba.cols(), rgba.rows(), Bitmap.Config.ARGB_8888);
-            Utils.matToBitmap(rgba, bmp);
-            rgba.release();
-
-            ContentResolver cr = ctx.getContentResolver();
-            try (java.io.OutputStream os = cr.openOutputStream(uri, "rwt")) {
-                if (os == null) return false;
-                boolean ok = bmp.compress(Bitmap.CompressFormat.JPEG, jpegQuality, os);
-                os.flush();
-                bmp.recycle();
-                return ok;
-            }
-        } catch (Exception e) {
-            Log.e("OpenCvImageUtils", Objects.requireNonNull(e.getMessage()));
-            return false;
-        }
+        return exifRotation;
     }
 }
