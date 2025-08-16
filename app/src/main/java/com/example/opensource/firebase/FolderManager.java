@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.opensource.folder.folderInfo;
+import com.example.opensource.repository.RepositoryInfo;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -70,13 +70,13 @@ public class FolderManager {
                 .orderBy("createdAt")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<folderInfo> folders = new ArrayList<>();
+                    List<RepositoryInfo> folders = new ArrayList<>();
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         String name = doc.getString("name");
                         String lastModified = doc.getString("lastModified");
 
                         // 🔹 Firestore 문서 ID도 저장해야 수정/삭제 가능
-                        folderInfo info = new folderInfo(name, lastModified);
+                        RepositoryInfo info = new RepositoryInfo(name, lastModified);
                         info.setId(doc.getId());
                         folders.add(info);
                     }
@@ -147,7 +147,7 @@ public class FolderManager {
      * 불러오기 콜백
      */
     public interface OnFoldersLoadListener {
-        void onSuccess(List<folderInfo> folders);
+        void onSuccess(List<RepositoryInfo> folders);
         void onFailure(Exception e);
     }
 

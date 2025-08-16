@@ -5,6 +5,7 @@ import android.text.TextWatcher;
 import android.widget.EditText;
 
 import com.example.opensource.RepositoryListAdapter;
+import com.example.opensource.repository.RepositoryInfo;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ import java.util.List;
 public class SearchHelper {
 
     // 🔹 검색창 세팅
-    public static void setupSearch(EditText searchBar, List<folderInfo> fileList, RepositoryListAdapter adapter) {
+    public static void setupSearch(EditText searchBar, List<RepositoryInfo> fileList, RepositoryListAdapter adapter) {
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
@@ -26,7 +27,7 @@ public class SearchHelper {
     }
 
     // 🔹 뒤로가기 처리 (검색창 비우기 → 전체 목록 복원)
-    public static boolean handleBackPress(EditText searchBar, List<folderInfo> fileList, RepositoryListAdapter adapter) {
+    public static boolean handleBackPress(EditText searchBar, List<RepositoryInfo> fileList, RepositoryListAdapter adapter) {
         if (searchBar != null && !searchBar.getText().toString().isEmpty()) {
             searchBar.setText("");
             adapter.submitList(FolderFilter.filter(fileList, ""));

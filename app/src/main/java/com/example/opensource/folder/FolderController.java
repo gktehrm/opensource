@@ -11,6 +11,7 @@ import android.text.InputType;
 
 import com.example.opensource.RepositoryListAdapter;
 import com.example.opensource.firebase.FolderManager;
+import com.example.opensource.repository.RepositoryInfo;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.List;
 public class FolderController {
 
     // 🔹 폴더 추가
-    public static void showAddFolderDialog(Context context, List<folderInfo> fileList, RepositoryListAdapter adapter) {
+    public static void showAddFolderDialog(Context context, List<RepositoryInfo> fileList, RepositoryListAdapter adapter) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("폴더 이름을 입력하세요");
 
@@ -45,7 +46,7 @@ public class FolderController {
     }
 
     // 🔹 폴더 삭제
-    public static void deleteFolder(Context context, folderInfo file, List<folderInfo> fileList, RepositoryListAdapter adapter) {
+    public static void deleteFolder(Context context, RepositoryInfo file, List<RepositoryInfo> fileList, RepositoryListAdapter adapter) {
         FolderManager.deleteFolder(file.getId(), new FolderManager.OnFolderActionListener() {
             @Override
             public void onSuccess() {
@@ -62,7 +63,7 @@ public class FolderController {
     }
 
     // 🔹 폴더 불러오기 (Firestore → fileList에 저장 후 adapter 갱신)
-    public static void loadFolders(FirebaseUser user, List<folderInfo> fileList, RepositoryListAdapter adapter) {
+    public static void loadFolders(FirebaseUser user, List<RepositoryInfo> fileList, RepositoryListAdapter adapter) {
         FolderRepository.loadFolders(user, folders -> {
             fileList.clear();
             fileList.addAll(folders);

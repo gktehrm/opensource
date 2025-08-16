@@ -3,7 +3,6 @@ package com.example.opensource;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.InputType;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -11,36 +10,37 @@ import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.opensource.auth.LoginActivity;
-import com.example.opensource.auth.ProfileManager;
-import com.example.opensource.menu.MyPageActivity;
+import com.example.opensource.folder.FolderController;
+import com.example.opensource.folder.SearchHelper;
 import com.example.opensource.repository.RepositoryInfo;
+import com.example.opensource.menu.MyPageActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private RepositoryListAdapter adapter;
     private List<RepositoryInfo> fileList;
+    private List<RepositoryInfo> folderList;
 
     private FirebaseAuth auth;
     private FirebaseUser user;
     private String userName;
+    private EditText searchBar;  // 전역으로 선언
+
+
     private static final String PREFS_NAME = "repository_prefs";
     private static final String KEY_FILE_LIST = "file_list";
     private final ActivityResultLauncher<Intent> myPageLauncher =
@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
+            return;
         }
 
         Log.d("MainActivity", "User UID: " + user.getUid());
@@ -89,17 +90,43 @@ public class MainActivity extends AppCompatActivity {
         });
 
         recyclerView = findViewById(R.id.recyclerView);
-
+        searchBar = findViewById(R.id.searchBar);
         fileList = new ArrayList<>();
+        folderList = new ArrayList<>();
 
         // position 0번에 항상 플러스 카드가 고정되도록 null 추가
         fileList.add(null);
 
-        adapter = new RepositoryListAdapter(MainActivity.this, fileList, this::showAddFolderDialog);
+        adapter = new RepositoryListAdapter(new RepositoryListAdapter.FolderActionListener() {
+            @Override
+            public void onAddFolder() {
+                showAddFolderDialog();
+            }
+
+            @Override
+            public void onDeleteFolder(RepositoryInfo file) {
+                deleteFolder(file);
+            }
+
+            @Override
+            public void onRenameFolder(RepositoryInfo file, String newName) {
+                // 필요하다면 이름 변경 처리
+            }
+        });
 
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+        // 검색창 연결
+        SearchHelper.setupSearch(searchBar, folderList, adapter);
+
+        // 폴더 불러오기
+        FolderController.loadFolders(user, folderList, adapter);
+
+        SearchHelper.setupSearch(searchBar, folderList, adapter);
+
+        // Firestore에서 폴더 로드
+        FolderController.loadFolders(user, folderList, adapter);
     }
 
     public void updateUserName(String userName) {
@@ -108,29 +135,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showAddFolderDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("폴더 이름을 입력하세요");
-
-        final EditText input = new EditText(MainActivity.this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
-
-        builder.setPositiveButton("확인", (dialog, which) -> {
-            String folderName = input.getText().toString().trim();
-
-            if (!folderName.isEmpty()) {
-                String date = new SimpleDateFormat("yyyy.MM.dd a h:mm", Locale.getDefault()).format(new Date());
-                RepositoryInfo newFolder = new RepositoryInfo(folderName, "마지막 수정 " + date);
-                fileList.add(newFolder);
-                adapter.notifyItemInserted(fileList.size() - 1);
-                saveRepositoryList();   // <-- 추가
-            }
-        });
-
-        builder.setNegativeButton("취소", (dialog, which) -> dialog.cancel());
-
-        builder.show();
+        FolderController.showAddFolderDialog(this, folderList, adapter);
     }
+
+    private void deleteFolder(RepositoryInfo file) {
+        FolderController.deleteFolder(this, file, folderList, adapter);
+
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -144,8 +156,8 @@ public class MainActivity extends AppCompatActivity {
             if (info != null) {
                 JSONObject obj = new JSONObject();
                 try {
-                    obj.put("title", info.getTitle());
-                    obj.put("date", info.getDate());
+                    obj.put("title", info.getname());
+                    obj.put("date", info.getlastModified());
                     array.put(obj);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -177,5 +189,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         if (adapter != null) adapter.notifyDataSetChanged();
+    }
+    @Override
+    public void onBackPressed() {
+        // 뒤로가기 눌렀을 때: 검색창이 열려있으면 닫기, 아니면 기본 동작
+        if (!SearchHelper.handleBackPress(searchBar, folderList, adapter)) {
+            super.onBackPressed();
+        }
     }
 }

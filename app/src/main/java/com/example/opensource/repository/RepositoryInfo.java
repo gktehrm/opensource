@@ -1,18 +1,18 @@
-package com.example.opensource.folder;
+package com.example.opensource.repository;
 
-public class folderInfo {
+public class RepositoryInfo {
     private String id;
     private String name; // 폴더 이름
     private String lastModified;  // 마지막 수정 날짜
 
 
-    public folderInfo(String name, String lastModified) {
+    public RepositoryInfo(String name, String lastModified) {
         this.name = name;
         this.lastModified = lastModified;
 
     }
 
-    public folderInfo(String id, String name, String lastModified) {
+    public RepositoryInfo(String id, String name, String lastModified) {
         this.name = name;
         this.lastModified = lastModified;
         this.id = id;

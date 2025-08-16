@@ -1,6 +1,8 @@
 package com.example.opensource.folder;
 
 import com.example.opensource.RepositoryListAdapter;
+import com.example.opensource.repository.RepositoryInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -28,12 +30,12 @@ public class FolderFilter {
         return result.toString();
     }
 
-    public static List<RepositoryListAdapter.FolderListItem> filter(List<folderInfo> folders, String query) {
+    public static List<RepositoryListAdapter.FolderListItem> filter(List<RepositoryInfo> folders, String query) {
         String q = query == null ? "" : query.trim().toLowerCase(Locale.getDefault());
 
         List<RepositoryListAdapter.FolderListItem> filtered = new ArrayList<>();
 
-        for (folderInfo f : folders) {
+        for (RepositoryInfo f : folders) {
             if (f != null) {
                 String title = f.getname() == null ? "" : f.getname();
                 String date = f.getlastModified() == null ? "" : f.getlastModified();

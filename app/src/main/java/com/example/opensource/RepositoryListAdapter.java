@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.opensource.firebase.FolderManager;
-import com.example.opensource.folder.folderInfo;
+import com.example.opensource.repository.RepositoryInfo;
 import com.example.opensource.repository.RepositoryActivity;
 
 import java.text.SimpleDateFormat;
@@ -61,8 +61,8 @@ public class RepositoryListAdapter extends ListAdapter<RepositoryListAdapter.Fol
                 @Override
                 public boolean areContentsTheSame(@NonNull FolderListItem oldItem, @NonNull FolderListItem newItem) {
                     if (oldItem instanceof FolderListItem.Row && newItem instanceof FolderListItem.Row) {
-                        folderInfo f1 = ((FolderListItem.Row) oldItem).folder;
-                        folderInfo f2 = ((FolderListItem.Row) newItem).folder;
+                        RepositoryInfo f1 = ((FolderListItem.Row) oldItem).folder;
+                        RepositoryInfo f2 = ((FolderListItem.Row) newItem).folder;
                         return f1.getId().equals(f2.getId())
                                 && f1.getname().equals(f2.getname())
                                 && f1.getlastModified().equals(f2.getlastModified());
@@ -125,7 +125,7 @@ public class RepositoryListAdapter extends ListAdapter<RepositoryListAdapter.Fol
             menuButton = itemView.findViewById(R.id.menuButton);
         }
 
-        public void bind(folderInfo file, RepositoryListAdapter adapter, FolderActionListener listener) {
+        public void bind(RepositoryInfo file, RepositoryListAdapter adapter, FolderActionListener listener) {
             textTitle.setText(file.getname());
             textDate.setText("마지막 수정 " + file.getlastModified());
 
@@ -156,7 +156,7 @@ public class RepositoryListAdapter extends ListAdapter<RepositoryListAdapter.Fol
             });
         }
 
-        private void showEditDialog(folderInfo file, RepositoryListAdapter adapter, FolderActionListener listener) {
+        private void showEditDialog(RepositoryInfo file, RepositoryListAdapter adapter, FolderActionListener listener) {
             AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
             builder.setTitle("폴더 이름 수정");
 
@@ -174,13 +174,13 @@ public class RepositoryListAdapter extends ListAdapter<RepositoryListAdapter.Fol
                             String date = RepositoryListAdapter.DateUtils.now();
 
                             // 🔥 새로운 folderInfo 객체 생성
-                            folderInfo updated = new folderInfo(file.getId(), newName, date);
+                            RepositoryInfo updated = new RepositoryInfo(file.getId(), newName, date);
 
                             // 🔥 새로운 리스트 만들어서 교체
                             List<RepositoryListAdapter.FolderListItem> newList = new ArrayList<>();
                             for (RepositoryListAdapter.FolderListItem item : adapter.getCurrentList()) {
                                 if (item instanceof RepositoryListAdapter.FolderListItem.Row) {
-                                    folderInfo f = ((FolderListItem.Row) item).folder;
+                                    RepositoryInfo f = ((FolderListItem.Row) item).folder;
                                     if (f.getId().equals(file.getId())) {
                                         newList.add(new RepositoryListAdapter.FolderListItem.Row(updated));
                                     } else {
@@ -213,9 +213,9 @@ public class RepositoryListAdapter extends ListAdapter<RepositoryListAdapter.Fol
         public static class Add extends FolderListItem { }
 
         public static class Row extends FolderListItem {
-            public final folderInfo folder;
+            public final RepositoryInfo folder;
 
-            public Row(folderInfo folder) {
+            public Row(RepositoryInfo folder) {
                 this.folder = folder;
             }
         }
@@ -223,8 +223,8 @@ public class RepositoryListAdapter extends ListAdapter<RepositoryListAdapter.Fol
 
     public interface FolderActionListener {
         void onAddFolder();
-        void onDeleteFolder(folderInfo file);
-        void onRenameFolder(folderInfo file, String newName);
+        void onDeleteFolder(RepositoryInfo file);
+        void onRenameFolder(RepositoryInfo file, String newName);
     }
 
     // ---------- 날짜 유틸 ----------
