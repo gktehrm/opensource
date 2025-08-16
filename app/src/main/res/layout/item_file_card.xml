@@ -10,8 +10,8 @@
     <!-- 더보기 아이콘 -->
     <ImageButton
         android:id="@+id/menuButton"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
         android:src="@drawable/ic_more_vert"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:scaleType="fitCenter"

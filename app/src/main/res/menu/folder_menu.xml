@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <receiptItem
-        android:id="@+id/menu_edit"
-        android:title="수정" />
-    <receiptItem
-        android:id="@+id/menu_delete"
+    <item
+        android:id="@+id/action_rename"
+        android:title="이름 변경" />
+    <item
+        android:id="@+id/action_delete"
         android:title="삭제" />
 </menu>
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<menu xmlns:android="http://schemas.android.com/apk/res/android">-->
+<!--    <receiptItem-->
+<!--        android:id="@+id/menu_edit"-->
+<!--        android:title="수정" />-->
+<!--    <receiptItem-->
+<!--        android:id="@+id/menu_delete"-->
+<!--        android:title="삭제" />-->
+<!--</menu>-->
+
+

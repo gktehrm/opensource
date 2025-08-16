@@ -10,6 +10,7 @@ public class Receipt {
     private String timestamp;
     private List<ReceiptItem> receiptItemList;
     private int receiptTotal;
+    private String imageUrl; // 이미지 경로(URL)
 
     public Receipt() {
         receiptItemList = new ArrayList<>();
@@ -30,8 +31,16 @@ public class Receipt {
     public void setTimestamp(String timestamp) { this.timestamp = timestamp; }
 
     public List<ReceiptItem> getItemList() { return receiptItemList; }
+    public void setItemList(List<ReceiptItem> list) {
+        this.receiptItemList = list;
+    }
+
 
     public int getReceiptTotal() { return receiptTotal; }
+    public void setReceiptTotal(int receiptTotal) { this.receiptTotal = receiptTotal; }  // 파이어베이스 추가
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }  // 파이어베이스 추가
 
     // method
     public void addItem(ReceiptItem receiptItem) {
