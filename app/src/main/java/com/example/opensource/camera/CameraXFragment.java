@@ -1,12 +1,14 @@
 package com.example.opensource.camera;
 
+import static com.example.opensource.camera.util.OpenCvImageUtils.getExifRotation;
+
 import android.Manifest;
-import android.content.ContentValues;
 import android.content.pm.PackageManager;
-import android.net.Uri;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,30 +18,35 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureException;
-import androidx.camera.core.Preview;
+import androidx.camera.core.*;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.opensource.R;
+import com.example.opensource.camera.analyzer.ContourResultListener;
+import com.example.opensource.camera.analyzer.FrameAnalyzer;
+import com.example.opensource.camera.util.OpenCvImageUtils;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.text.SimpleDateFormat;
-import java.util.Locale;
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
+
+import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class CameraXFragment extends Fragment implements CameraListener {
+public class CameraXFragment extends Fragment implements CameraListener, ContourResultListener {
 
     private PreviewView previewView;
-    private Button captureButton;
+    private OverlayView overlay;
     private ImageCapture imageCapture;
-
     private ExecutorService cameraExecutor;
+    private FrameAnalyzer frameAnalyzer;
+    private ProcessCameraProvider cameraProvider;
+    private ImageAnalysis analysis;
+    private boolean isStopped = false;
 
     private final ActivityResultLauncher<String[]> permissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
@@ -59,13 +66,15 @@ public class CameraXFragment extends Fragment implements CameraListener {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         previewView = view.findViewById(R.id.previewView);
-        captureButton = view.findViewById(R.id.capture_button);
+        overlay = view.findViewById(R.id.overlay);
+        Button captureButton = view.findViewById(R.id.capture_button);
 
         cameraExecutor = Executors.newSingleThreadExecutor();
+        frameAnalyzer = new FrameAnalyzer(this);
 
         requestPermissionsAndStartCamera();
-
         captureButton.setOnClickListener(v -> takePhoto());
+        overlay.post(() -> overlay.debugDrawTestBox());
     }
 
     private void requestPermissionsAndStartCamera() {
@@ -83,13 +92,21 @@ public class CameraXFragment extends Fragment implements CameraListener {
 
         cameraProviderFuture.addListener(() -> {
             try {
-                ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+                cameraProvider = cameraProviderFuture.get();
 
                 Preview preview = new Preview.Builder().build();
                 imageCapture = new ImageCapture.Builder()
                         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                         .setTargetRotation(requireActivity().getWindowManager().getDefaultDisplay().getRotation())
                         .build();
+
+                analysis = new ImageAnalysis.Builder()
+                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                        .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
+                        .setTargetResolution(new android.util.Size(1280, 720))
+                        .build();
+
+                analysis.setAnalyzer(cameraExecutor, frameAnalyzer);
 
                 CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
@@ -98,52 +115,93 @@ public class CameraXFragment extends Fragment implements CameraListener {
                         getViewLifecycleOwner(),
                         cameraSelector,
                         preview,
-                        imageCapture
+                        imageCapture,
+                        analysis
                 );
 
                 preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e("CameraX", "Use case binding failed" + e.getMessage());
             }
         }, ContextCompat.getMainExecutor(requireContext()));
+        previewView.setScaleType(PreviewView.ScaleType.FILL_CENTER);
+    }
+
+    public void stopCamera() {
+        if (isStopped) return;
+        isStopped = true;
+        try {
+            if (analysis != null) {
+                analysis.clearAnalyzer();
+                analysis = null;
+            }
+            if (cameraProvider != null) {
+                cameraProvider.unbindAll();
+            }
+        } catch (Exception ignored) {}
+        // 실행 스레드도 종료
+        if (cameraExecutor != null && !cameraExecutor.isShutdown()) {
+            cameraExecutor.shutdown();
+        }
     }
 
     private void takePhoto() {
         if (imageCapture == null) return;
 
-        // 갤러리용 저장 설정
-        String name = "photo_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(System.currentTimeMillis());
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
-        contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/InsectApp");
-
-        Uri savedUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        ImageCapture.OutputFileOptions outputOptions = new ImageCapture.OutputFileOptions.Builder(
-                requireContext().getContentResolver(),
-                savedUri,
-                contentValues
-        ).build();
-
         imageCapture.takePicture(
-                outputOptions,
-                ContextCompat.getMainExecutor(requireContext()),
-                new ImageCapture.OnImageSavedCallback() {
+                cameraExecutor,
+                new ImageCapture.OnImageCapturedCallback() {
+                    @ExperimentalGetImage
                     @Override
-                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                        Uri uri = outputFileResults.getSavedUri();
-                        if (uri != null) {
-                            Toast.makeText(getContext(), "✅ 저장됨", Toast.LENGTH_SHORT).show();
-                            PhotoDialogFragment dialog = PhotoDialogFragment.newInstance(uri.toString());
-                            dialog.show(getParentFragmentManager(), "PhotoDialog");
-                        }
-                    }
+                    public void onCaptureSuccess(@NonNull ImageProxy image) {
+                        Bitmap bitmap;
+                        try (image) {
+                            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+                            byte[] bytes = new byte[buffer.remaining()];
+                            buffer.get(bytes);
 
-                    @Override
-                    public void onError(@NonNull ImageCaptureException exception) {
-                        Toast.makeText(getContext(), "❌ 저장 실패", Toast.LENGTH_SHORT).show();
-                        exception.printStackTrace();
+                            int exifRotation = getExifRotation(bytes);
+
+                            bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                            if (exifRotation != 0 && bitmap != null) {
+                                Matrix matrix = new Matrix();
+                                matrix.postRotate(exifRotation);
+                                bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                            }
+
+                            Mat original = new Mat();
+                            Utils.bitmapToMat(bitmap, original);
+
+                            float[] qx = frameAnalyzer.getLastQuadXs();
+                            float[] qy = frameAnalyzer.getLastQuadYs();
+
+                            Mat warped = null;
+                            if (qx != null && qy != null && qx.length == 4 && qy.length == 4) {
+                                warped = com.example.opensource.camera.processing.RectifyUtils.rectifyWithQuad(original, qx, qy);
+                            }
+
+                            if (warped != null && !warped.empty()) {
+                                Bitmap warpedBitmap = Bitmap.createBitmap(warped.cols(), warped.rows(), Bitmap.Config.ARGB_8888);
+                                Utils.matToBitmap(warped, warpedBitmap);
+                                warped.release();
+                                bitmap = warpedBitmap;
+                            }
+                            original.release();
+
+                            Bitmap finalBitmap = bitmap;
+                            requireActivity().runOnUiThread(() -> {
+                                PhotoPreviewDialogFragment dialog = PhotoPreviewDialogFragment.newInstance(finalBitmap);
+                                dialog.setTargetFragment(CameraXFragment.this, 0);
+                                dialog.show(getParentFragmentManager(), "PhotoPreview");
+                            });
+
+                        } catch (Exception e) {
+                            Log.e("Capture", "사진 처리 중 오류" + e.getMessage());
+                            requireActivity().runOnUiThread(() ->
+                                    Toast.makeText(getContext(), "사진 처리 중 오류", Toast.LENGTH_SHORT).show());
+                        }
                     }
                 }
         );
@@ -151,19 +209,45 @@ public class CameraXFragment extends Fragment implements CameraListener {
 
     @Override
     public void onRetryCapture() {
-        Toast.makeText(getContext(), "↩ 다시 찍기", Toast.LENGTH_SHORT).show();
-        // CameraX는 자동으로 프리뷰 유지됨 → 추가 작업 불필요
+        Toast.makeText(getContext(), "다시 찍기", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onConfirmCapture(Uri uri) {
-        Toast.makeText(getContext(), "✔ 계속 진행됨: " + uri, Toast.LENGTH_SHORT).show();
-        // TODO: 업로드, 다음 화면 이동 등
+    public void onConfirmCapture(Bitmap bitmap) {
+        CameraActivity activity = (CameraActivity) requireActivity();
+        activity.onCameraResult(OpenCvImageUtils.bitmapToMat(bitmap));
+    }
+
+
+    @Override
+    public void onContourResult(float[] xs, float[] ys, int imgW, int imgH) {
+        if (overlay == null) return;
+        int vw = overlay.getWidth(), vh = overlay.getHeight();
+        if (vw == 0 || vh == 0) return;
+
+        float[] mapped = OpenCvImageUtils.mapToOverlayFill(xs, ys, imgW, imgH, vw, vh);
+
+        int n = mapped.length / 2;
+        float[] mx = new float[n], my = new float[n];
+        for (int i = 0, j = 0; i < mapped.length; i += 2, j++) {
+            mx[j] = mapped[i];
+            my[j] = mapped[i + 1];
+        }
+        requireActivity().runOnUiThread(() -> overlay.setMappedContour(mx, my));
+    }
+
+    @Override
+    public void onNoContour(int imgW, int imgH) {
+        if (overlay == null || !isAdded()) return;
+
+        requireActivity().runOnUiThread(() -> overlay.setMappedContour(null, null));
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (cameraExecutor != null) cameraExecutor.shutdown();
+        stopCamera();
     }
+
+
 }

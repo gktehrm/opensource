@@ -1,8 +1,8 @@
 package com.example.opensource.camera;
 
-import android.net.Uri;
+import android.graphics.Bitmap;
 
 public interface CameraListener {
     void onRetryCapture();
-    void onConfirmCapture(Uri uri);
+    void onConfirmCapture(Bitmap bitmap); // Uri 대신 Bitmap으로!
 }

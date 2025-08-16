@@ -1,3 +1,4 @@
+// com/example/opensource/receipt/ReceiptParser.java
 package com.example.opensource.receipt;
 
 import com.example.opensource.receipt.entity.Receipt;
@@ -16,19 +17,31 @@ public class ReceiptParser {
         receipt.setPhoneNumber(json.optString("phoneNumber"));
         receipt.setTimestamp(json.optString("timestamp"));
 
+        // 선택 필드 보완
+        receipt.setPaymentMethod(json.optString("paymentMethod"));
+        receipt.setUserInformation(json.optString("userInformation"));
+        receipt.setImageUri(json.optString("imageUri"));
+
         JSONArray list = json.optJSONArray("itemList");
+        int total = 0;
         if (list != null) {
             for (int i = 0; i < list.length(); i++) {
                 JSONObject itemObj = list.optJSONObject(i);
+                if (itemObj == null) continue;
                 String productName = itemObj.optString("productName");
                 int quantity = itemObj.optInt("quantity");
                 int unitPrice = itemObj.optInt("unitPrice");
-
                 ReceiptItem receiptItem = new ReceiptItem(productName, quantity, unitPrice);
                 receipt.addItem(receiptItem);
+                total += receiptItem.getSubTotal();
             }
         }
-
+        // JSON에 receiptTotal이 있으면 우선 적용 (OCR결과가 직접 계산해서 넣어준 경우)
+        if (json.has("receiptTotal")) {
+            receipt.setReceiptTotal(json.optInt("receiptTotal", total));
+        } else {
+            receipt.setReceiptTotal(total);
+        }
         return receipt;
     }
 
@@ -38,6 +51,9 @@ public class ReceiptParser {
         json.put("address", receipt.getAddress());
         json.put("phoneNumber", receipt.getPhoneNumber());
         json.put("timestamp", receipt.getTimestamp());
+        json.put("paymentMethod", receipt.getPaymentMethod());
+        json.put("userInformation", receipt.getUserInformation());
+        json.put("imageUri", receipt.getImageUri());
 
         JSONArray list = new JSONArray();
         for (ReceiptItem receiptItem : receipt.getItemList()) {
@@ -48,10 +64,8 @@ public class ReceiptParser {
             itemJson.put("subTotal", receiptItem.getSubTotal());
             list.put(itemJson);
         }
-
         json.put("itemList", list);
         json.put("receiptTotal", receipt.getReceiptTotal());
-
         return json;
     }
 }

@@ -1,6 +1,8 @@
 package com.example.opensource.receipt.entity;
 
-public class ReceiptItem {
+import java.io.Serializable;
+
+public class ReceiptItem implements Serializable {
     private String itemName;
     private int quantity;
     private int unitPrice;
