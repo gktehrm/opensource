@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- 영수증 폴더 표시 -->
+        <TextView
+            android:id="@+id/textFolder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="영수증 폴더명"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:paddingBottom="8dp"/>
+
+        <!-- 영수증 사진(이미지) -->
+        <ImageView
+            android:id="@+id/imageReceipt"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:background="#EEE"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- 상호명 -->
+        <EditText
+            android:id="@+id/editStoreName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="상호명"
+            android:inputType="text"/>
+
+        <!-- 주소 -->
+        <EditText
+            android:id="@+id/editAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="주소"
+            android:inputType="text"/>
+
+        <!-- 연락처 -->
+        <EditText
+            android:id="@+id/editPhoneNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="연락처"
+            android:inputType="phone"/>
+
+        <!-- 거래일시 -->
+        <EditText
+            android:id="@+id/editTimestamp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="거래일시"
+            android:inputType="text"/>
+
+        <!-- 주문내역(RecyclerView) -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="주문내역"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerOrderItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="60dp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- 결제금액 -->
+        <EditText
+            android:id="@+id/editReceiptTotal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="결제금액"
+            android:inputType="number"/>
+
+        <!-- 결제수단 -->
+        <EditText
+            android:id="@+id/editPaymentMethod"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="결제수단"
+            android:inputType="text"/>
+
+        <!-- 영수증 이미지(이미 위에서 표시함. 필요시 중복 가능) -->
+        <!-- <ImageView
+            android:id="@+id/imageReceipt2"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:background="#EEE"
+            android:layout_marginBottom="8dp"/> -->
+
+        <!-- 사용정보 -->
+        <EditText
+            android:id="@+id/editUserInformation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="사용정보"
+            android:inputType="text"/>
+
+        <!-- 하단 버튼 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="20dp">
+
+            <Button
+                android:id="@+id/btnRetake"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="다시찍기"/>
+
+            <Space
+                android:layout_width="16dp"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/btnSave"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="저장하기"/>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

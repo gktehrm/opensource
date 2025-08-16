@@ -65,4 +65,6 @@ dependencies {
     implementation("org.apache.poi:poi-ooxml:5.2.3")
     implementation("com.google.guava:guava:31.1-android")
 
+    implementation("com.google.ai.client.generativeai:generativeai:0.3.0")
+
 }

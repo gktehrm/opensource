@@ -1,10 +1,10 @@
+// com/example/opensource/receipt/ReceiptAdapter.java
 package com.example.opensource.receipt;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -13,47 +13,50 @@ import com.example.opensource.receipt.entity.Receipt;
 
 import java.util.List;
 
-public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.ReceiptViewHolder> {
-    private List<Receipt> receiptList;
+public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.VH> {
 
-    public ReceiptAdapter(List<Receipt> receiptList) {
-        this.receiptList = receiptList;
+    public interface OnItemClickListener {
+        void onClick(int position, Receipt receipt);
     }
 
-    @NonNull
-    @Override
-    public ReceiptViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_receipt, parent, false);
-        return new ReceiptViewHolder(v);
+    private List<Receipt> data;
+    private OnItemClickListener listener;
+
+    public ReceiptAdapter(List<Receipt> data, OnItemClickListener listener) {
+        this.data = data;
+        this.listener = listener;
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull ReceiptViewHolder holder, int position) {
-        Receipt receipt = receiptList.get(position);
-        holder.tvStore.setText(receipt.getStoreName());
-        holder.tvDate.setText(receipt.getTimestamp());
-        holder.tvTotal.setText(receipt.getReceiptTotal() + "원");
-    }
-
-    @Override
-    public int getItemCount() {
-        return receiptList.size();
-    }
-
-    public void setReceipts(List<Receipt> newReceipts) {
-        receiptList = newReceipts;
+    public void setReceipts(List<Receipt> newData) {
+        this.data = newData;
         notifyDataSetChanged();
     }
 
-    static class ReceiptViewHolder extends RecyclerView.ViewHolder {
-        TextView tvStore, tvDate, tvTotal;
+    @NonNull @Override
+    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_receipt, parent, false);
+        return new VH(v);
+    }
 
-        ReceiptViewHolder(@NonNull View itemView) {
+    @Override
+    public void onBindViewHolder(@NonNull VH h, int pos) {
+        Receipt r = data.get(pos);
+        h.title.setText(r.getStoreName());
+        h.sub.setText(r.getTimestamp() + " • " + r.getReceiptTotal() + "원");
+        h.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onClick(pos, r);
+        });
+    }
+
+    @Override
+    public int getItemCount() { return data == null ? 0 : data.size(); }
+
+    static class VH extends RecyclerView.ViewHolder {
+        TextView title, sub;
+        VH(@NonNull View itemView) {
             super(itemView);
-            tvStore = itemView.findViewById(R.id.tvStoreName);
-            tvDate = itemView.findViewById(R.id.tvReceiptDate);
-            tvTotal = itemView.findViewById(R.id.tvReceiptTotal);
+            title = itemView.findViewById(R.id.tvStoreName);
+            sub = itemView.findViewById(R.id.tvReceiptTotal);
         }
     }
 }
