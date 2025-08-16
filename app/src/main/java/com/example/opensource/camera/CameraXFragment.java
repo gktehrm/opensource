@@ -28,6 +28,8 @@ import com.example.opensource.camera.analyzer.FrameAnalyzer;
 import com.example.opensource.camera.util.OpenCvImageUtils;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.opencv.core.Mat;
+
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -119,6 +121,7 @@ public class CameraXFragment extends Fragment implements CameraListener, Contour
                 e.printStackTrace();
             }
         }, ContextCompat.getMainExecutor(requireContext()));
+        previewView.setScaleType(PreviewView.ScaleType.FILL_CENTER);
     }
 
     private void takePhoto() {
@@ -145,11 +148,40 @@ public class CameraXFragment extends Fragment implements CameraListener, Contour
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
                         Uri uri = outputFileResults.getSavedUri();
                         if (uri != null) {
-                            Toast.makeText(getContext(), "✅ 저장됨", Toast.LENGTH_SHORT).show();
+                            // 1) 최근 quad 가져오기
+                            float[] qx = frameAnalyzer.getLastQuadXs();
+                            float[] qy = frameAnalyzer.getLastQuadYs();
+
+                            if (qx != null && qy != null && qx.length == 4 && qy.length == 4) {
+                                // 2) Uri → Mat(BGR)
+                                Mat original = com.example.opensource.camera.util.OpenCvImageUtils.uriToBgr(requireContext(), uri);
+                                if (original != null && !original.empty()) {
+                                    // 3) 원근 보정
+                                    Mat warped = com.example.opensource.camera.processing.RectifyUtils
+                                            .rectifyWithQuad(original, qx, qy);
+
+                                    // 4) 같은 Uri에 덮어쓰기 (JPEG 95)
+                                    boolean ok = com.example.opensource.camera.util.OpenCvImageUtils
+                                            .saveMatToUri(requireContext(), uri, warped, 95);
+
+                                    original.release(); warped.release();
+                                    if (!ok) {
+                                        Toast.makeText(getContext(), "원근변환 저장 실패(원본 표시)", Toast.LENGTH_SHORT).show();
+                                    }
+                                } else {
+                                    Toast.makeText(getContext(), "이미지 로드 실패(원본 표시)", Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Toast.makeText(getContext(), "문서 외곽 4점을 찾지 못해 원본을 표시합니다", Toast.LENGTH_SHORT).show();
+                            }
+
+                            // 5) 다이얼로그 표시 (uri는 보정본 또는 원본)
+                            Toast.makeText(getContext(), "✅ 저장됨(원근 보정 적용)", Toast.LENGTH_SHORT).show();
                             PhotoDialogFragment dialog = PhotoDialogFragment.newInstance(uri.toString());
                             dialog.show(getParentFragmentManager(), "PhotoDialog");
                         }
                     }
+
                     @Override
                     public void onError(@NonNull ImageCaptureException exception) {
                         Toast.makeText(getContext(), "❌ 저장 실패", Toast.LENGTH_SHORT).show();
@@ -170,14 +202,17 @@ public class CameraXFragment extends Fragment implements CameraListener, Contour
         Toast.makeText(getContext(), "✔ 계속 진행됨: " + uri, Toast.LENGTH_SHORT).show();
     }
 
-    // ====== ContourResultListener (실시간 오버레이 갱신) ======
     @Override
     public void onContourResult(float[] xs, float[] ys, int imgW, int imgH) {
         if (overlay == null) return;
-        float[] mapped = OpenCvImageUtils.mapToOverlay(xs, ys, imgW, imgH, overlay.getWidth(), overlay.getHeight());
+        int vw = overlay.getWidth(), vh = overlay.getHeight();
+        if (vw == 0 || vh == 0) return;
+
+        // imgW/imgH는 이제 "원본 버퍼" 크기 (위 1번에서 보정)
+        float[] mapped = OpenCvImageUtils.mapToOverlayFill(xs, ys, imgW, imgH, vw, vh);
+
         int n = mapped.length / 2;
-        float[] mx = new float[n];
-        float[] my = new float[n];
+        float[] mx = new float[n], my = new float[n];
         for (int i = 0, j = 0; i < mapped.length; i += 2, j++) {
             mx[j] = mapped[i];
             my[j] = mapped[i + 1];
@@ -185,9 +220,11 @@ public class CameraXFragment extends Fragment implements CameraListener, Contour
         requireActivity().runOnUiThread(() -> overlay.setMappedContour(mx, my));
     }
 
+
     @Override
     public void onNoContour(int imgW, int imgH) {
-        if (overlay == null) return;
+        if (overlay == null || !isAdded()) return;
+
         requireActivity().runOnUiThread(() -> overlay.setMappedContour(null, null));
     }
 
@@ -196,4 +233,6 @@ public class CameraXFragment extends Fragment implements CameraListener, Contour
         super.onDestroy();
         if (cameraExecutor != null) cameraExecutor.shutdown();
     }
+
+
 }

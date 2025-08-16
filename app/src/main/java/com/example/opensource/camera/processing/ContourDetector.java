@@ -25,7 +25,7 @@ public class ContourDetector {
         Mat smallMask = Mat.zeros(edged.size(), CvType.CV_8U);
         for (MatOfPoint c : contours) {
             if (Imgproc.contourArea(c) < areaThresh) {
-                Imgproc.drawContours(smallMask, Arrays.asList(c), -1, new Scalar(255), -1);
+                Imgproc.drawContours(smallMask, List.of(c), -1, new Scalar(255), -1);
             }
         }
 
@@ -39,7 +39,7 @@ public class ContourDetector {
 
         for (MatOfPoint c : contours) {
             Mat docMask = Mat.zeros(edged.size(), CvType.CV_8U);
-            Imgproc.drawContours(docMask, Arrays.asList(c), -1, new Scalar(255), -1);
+            Imgproc.drawContours(docMask, Collections.singletonList(c), -1, new Scalar(255), -1);
             Mat docClean = new Mat();
             Core.subtract(docMask, smallMask, docClean);
 
@@ -93,7 +93,7 @@ public class ContourDetector {
         Mat mask = Mat.zeros(H + 2 * pad, W + 2 * pad, CvType.CV_8U);
 
         MatOfPoint padded = addOffset(contour, pad, pad);
-        Imgproc.drawContours(mask, Arrays.asList(padded), -1, new Scalar(255), -1);
+        Imgproc.drawContours(mask, List.of(padded), -1, new Scalar(255), -1);
 
         Mat k = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, kernel);
         Mat closed = new Mat();

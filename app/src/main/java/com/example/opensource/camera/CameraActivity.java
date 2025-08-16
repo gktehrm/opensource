@@ -7,13 +7,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.opensource.R;
 import org.opencv.android.OpenCVLoader;
 
+
 public class CameraActivity extends AppCompatActivity {
     static {
-        if (!OpenCVLoader.initDebug()) {
-            Log.e("OpenCV", "OpenCV init failed");
-        } else {
-            Log.d("OpenCV", "OpenCV init OK");
-        }
+        System.loadLibrary("opencv_java4");
+        Log.d("OpenCV", "OpenCV native lib loaded");
     }
 
     @Override
