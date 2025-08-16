@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.opensource.firebase.FolderManager;
+import com.example.opensource.firebase.RepositoryManager;
 import com.example.opensource.repository.RepositoryInfo;
 import com.example.opensource.repository.RepositoryActivity;
 
@@ -168,7 +168,7 @@ public class RepositoryListAdapter extends ListAdapter<RepositoryListAdapter.Fol
             builder.setPositiveButton("확인", (dialog, which) -> {
                 String newName = input.getText().toString().trim();
                 if (!newName.isEmpty()) {
-                    FolderManager.renameFolder(file.getId(), newName, new FolderManager.OnFolderActionListener() {
+                    RepositoryManager.renameFolder(file.getId(), newName, new RepositoryManager.OnFolderActionListener() {
                         @Override
                         public void onSuccess() {
                             String date = RepositoryListAdapter.DateUtils.now();

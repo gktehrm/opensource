@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class FolderManager {
+public class RepositoryManager {
 
     private static final String TAG = "FolderManager";
 

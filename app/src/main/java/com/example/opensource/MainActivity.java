@@ -15,8 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.opensource.auth.LoginActivity;
-import com.example.opensource.folder.FolderController;
-import com.example.opensource.folder.SearchHelper;
+import com.example.opensource.repository.RepositoryController;
+import com.example.opensource.repository.RepositorySearchHelper;
 import com.example.opensource.repository.RepositoryInfo;
 import com.example.opensource.menu.MyPageActivity;
 import com.google.firebase.auth.FirebaseAuth;
@@ -118,15 +118,15 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
         // 검색창 연결
-        SearchHelper.setupSearch(searchBar, folderList, adapter);
+        RepositorySearchHelper.setupSearch(searchBar, folderList, adapter);
 
         // 폴더 불러오기
-        FolderController.loadFolders(user, folderList, adapter);
+        RepositoryController.loadFolders(user, folderList, adapter);
 
-        SearchHelper.setupSearch(searchBar, folderList, adapter);
+        RepositorySearchHelper.setupSearch(searchBar, folderList, adapter);
 
         // Firestore에서 폴더 로드
-        FolderController.loadFolders(user, folderList, adapter);
+        RepositoryController.loadFolders(user, folderList, adapter);
     }
 
     public void updateUserName(String userName) {
@@ -135,11 +135,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showAddFolderDialog() {
-        FolderController.showAddFolderDialog(this, folderList, adapter);
+        RepositoryController.showAddFolderDialog(this, folderList, adapter);
     }
 
     private void deleteFolder(RepositoryInfo file) {
-        FolderController.deleteFolder(this, file, folderList, adapter);
+        RepositoryController.deleteFolder(this, file, folderList, adapter);
 
     }
 
@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         // 뒤로가기 눌렀을 때: 검색창이 열려있으면 닫기, 아니면 기본 동작
-        if (!SearchHelper.handleBackPress(searchBar, folderList, adapter)) {
+        if (!RepositorySearchHelper.handleBackPress(searchBar, folderList, adapter)) {
             super.onBackPressed();
         }
     }

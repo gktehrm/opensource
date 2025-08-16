@@ -1,13 +1,12 @@
-package com.example.opensource.folder;
+package com.example.opensource.repository;
 
 import com.example.opensource.RepositoryListAdapter;
-import com.example.opensource.repository.RepositoryInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-public class FolderFilter {
+//파일 검색 필터
+public class RepositoryFilter {
 
     // 한글 초성 리스트
     private static final char[] CHO = {
