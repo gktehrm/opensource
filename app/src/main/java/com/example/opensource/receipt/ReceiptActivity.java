@@ -1,6 +1,7 @@
 // com/example/opensource/receipt/ReceiptActivity.java
 package com.example.opensource.receipt;
 
+import com.bumptech.glide.Glide;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -15,9 +16,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.opensource.R;
+import com.example.opensource.firebase.FirebaseReceipt;
 import com.example.opensource.repository.RepositoryActivity;
 import com.example.opensource.camera.CameraActivity;
 import com.example.opensource.receipt.entity.Receipt;
+import com.example.opensource.receipt.ReceiptParser;
+import com.google.firebase.firestore.DocumentReference;
+
 
 import org.json.JSONObject;
 
@@ -34,7 +39,7 @@ public class ReceiptActivity extends AppCompatActivity {
 
     private int mode;   // create/edit
     private int index;  // 편집 시 원본 인덱스
-
+    private String repositoryId;
     /** 코드펜스, BOM, 스마트쿼트 제거 등 정리 */
     @Nullable
     private String normalizeAndExtractJsonObject(@Nullable String raw) {
@@ -134,6 +139,14 @@ public class ReceiptActivity extends AppCompatActivity {
         receipt = (Receipt) getIntent().getSerializableExtra(RepositoryActivity.EXTRA_RECEIPT);
         if (receipt == null) receipt = new Receipt();
 
+        // 저장소 ID 받아오기
+        repositoryId = getIntent().getStringExtra("repositoryId");
+        if (repositoryId == null) {
+            Toast.makeText(this, "저장소 ID가 없습니다.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         textFolder.setText("내 영수증 폴더");
 
         adapter = new ReceiptItemAdapter(receipt.getItemList());
@@ -145,17 +158,33 @@ public class ReceiptActivity extends AppCompatActivity {
         btnRetake.setOnClickListener(v -> openCamera());
 
         btnSave.setOnClickListener(v -> {
-            // 폼 → Receipt
             applyViewsToReceipt();
-            // 결과 반환
-            Intent result = new Intent();
-            result.putExtra(RepositoryActivity.EXTRA_RECEIPT, receipt);
-            result.putExtra(RepositoryActivity.EXTRA_INDEX, index);
-            setResult(RESULT_OK, result);
-            finish();
+
+            FirebaseReceipt firebase = new FirebaseReceipt();
+            Uri uploadUri = (receipt.getImageUri() != null) ? Uri.parse(receipt.getImageUri()) : null;
+
+            firebase.upsertReceipt(repositoryId, receipt, uploadUri, task -> {
+                if (task.isSuccessful()) {
+                    DocumentReference docRef = task.getResult();
+                    Log.d("ReceiptActivity", "저장 성공: " + docRef.getId());
+
+                    // 저장된 URL 다시 UI 반영
+                    bindReceiptToViews();
+
+                    // 결과 전달
+                    Intent result = new Intent();
+                    result.putExtra(RepositoryActivity.EXTRA_RECEIPT, receipt);
+                    result.putExtra(RepositoryActivity.EXTRA_INDEX, index);
+                    setResult(RESULT_OK, result);
+
+                    finish();
+                } else {
+                    Log.e("ReceiptActivity", "저장 실패", task.getException());
+                    Toast.makeText(this, "저장 실패: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
-        // 생성 모드이면 즉시 카메라 실행해 OCR로 채움
         if (mode == RepositoryActivity.MODE_CREATE) {
             openCamera();
         }
@@ -170,9 +199,22 @@ public class ReceiptActivity extends AppCompatActivity {
         editPaymentMethod.setText(nullToEmpty(receipt.getPaymentMethod()));
         editUserInformation.setText(nullToEmpty(receipt.getUserInformation()));
 
-        if (receipt.getImageUri() != null) {
-            setImagePreview(receipt.getImageUri());
+        // 🔹 이미지 표시 (우선순위: Firebase imageUrl → 로컬 imageUri → placeholder)
+        if (receipt.getImageUrl() != null && !receipt.getImageUrl().isEmpty()) {
+            // Firebase 저장된 URL 불러오기
+            Glide.with(this)
+                    .load(receipt.getImageUrl())
+                    .placeholder(R.drawable.ic_image_placeholder)
+                    .error(R.drawable.ic_image_placeholder)
+                    .into(imageReceipt);
+        } else if (receipt.getImageUri() != null && !receipt.getImageUri().isEmpty()) {
+            // 로컬에서 찍은 직후 미리보기
+            imageReceipt.setImageURI(Uri.parse(receipt.getImageUri()));
+        } else {
+            // 기본 이미지
+            imageReceipt.setImageResource(R.drawable.ic_image_placeholder);
         }
+
         adapter.notifyDataSetChanged();
     }
 

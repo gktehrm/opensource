@@ -133,6 +133,7 @@ public class RepositoryListAdapter extends ListAdapter<RepositoryListAdapter.Fol
             itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(itemView.getContext(), RepositoryActivity.class);
                 intent.putExtra("fileName", file.getname());
+                intent.putExtra("repositoryId", file.getId()); //저장소 ID 추가
                 itemView.getContext().startActivity(intent);
             });
 

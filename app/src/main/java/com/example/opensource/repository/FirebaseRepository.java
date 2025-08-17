@@ -9,6 +9,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Consumer;
+
 
 public class FirebaseRepository {
 
@@ -26,6 +28,24 @@ public class FirebaseRepository {
             }
         });
     }
+
+    /** 🔹 실시간 리스너 (자동 UI 갱신) */
+    public static void listenFolders(FirebaseUser user,
+                                     final Consumer<List<RepositoryInfo>> onSuccess,
+                                     final Consumer<Exception> onFailure) {
+        RepositoryManager.listenFolders(user, new RepositoryManager.OnFoldersLoadListener() {
+            @Override
+            public void onSuccess(List<RepositoryInfo> folders) {
+                onSuccess.accept(folders);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                onFailure.accept(e);
+            }
+        });
+    }
+
 
     public static void saveFolder(Context context, String folderName,
                                   final java.util.function.Consumer<RepositoryInfo> onSuccess,

@@ -5,7 +5,8 @@ public class RepositoryInfo {
     private String name; // 폴더 이름
     private String lastModified;  // 마지막 수정 날짜
 
-
+    public RepositoryInfo() {
+    }
     public RepositoryInfo(String name, String lastModified) {
         this.name = name;
         this.lastModified = lastModified;
@@ -18,15 +19,13 @@ public class RepositoryInfo {
         this.id = id;
     }
 
-    // 🔹 ID Getter/Setter
-    public String getId() {
-        return id;
-    }
+    //  ID Getter/Setter
+    public String getId() {return id;}
     public void setId(String id) {
         this.id = id;
     }
 
-    // 🔹 Title Getter/Setter
+    // Title Getter/Setter
     public String getname() {
         return name;
     }
@@ -35,7 +34,7 @@ public class RepositoryInfo {
     }
 
 
-    // 🔹 Date Getter
+    //  Date Getter
     public String getlastModified() {
         return lastModified;
     }

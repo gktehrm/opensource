@@ -151,6 +151,33 @@ public class RepositoryManager {
         void onFailure(Exception e);
     }
 
+    public static void listenFolders(FirebaseUser user,
+                                     OnFoldersLoadListener listener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("users")
+                .document(user.getUid())
+                .collection("repositories")
+                .addSnapshotListener((snapshots, e) -> {
+                    if (e != null) {
+                        listener.onFailure(e);
+                        return;
+                    }
+                    if (snapshots != null) {
+                        List<RepositoryInfo> repos = new ArrayList<>();
+                        for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                            RepositoryInfo repo = doc.toObject(RepositoryInfo.class);
+                            if (repo != null) {
+                                repo.setId(doc.getId());
+                                repos.add(repo);
+                            }
+                        }
+                        listener.onSuccess(repos);
+                    }
+                });
+    }
+
+
     /**
      * 수정/삭제 콜백
      */

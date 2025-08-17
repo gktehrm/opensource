@@ -13,14 +13,13 @@ import com.example.opensource.RepositoryListAdapter;
 import com.example.opensource.firebase.RepositoryManager;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 폴더 추가/삭제/불러오기 컨트롤러
- */
+ // 폴더 추가/삭제/불러오기 컨트롤러
 public class RepositoryController {
 
-    // 🔹 폴더 추가
+    // 폴더 추가
     public static void showAddFolderDialog(Context context, List<RepositoryInfo> fileList, RepositoryListAdapter adapter) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("폴더 이름을 입력하세요");
@@ -35,7 +34,7 @@ public class RepositoryController {
             if (!folderName.isEmpty()) {
                 FirebaseRepository.saveFolder(context, folderName, newFolder -> {
                     fileList.add(newFolder);
-                    adapter.submitList(RepositoryFilter.filter(fileList, "")); // 전체 목록 갱신
+                    submitFolderList(fileList, adapter);
                 }, e -> Log.e("FolderController", "폴더 저장 실패", e));
             }
         });
@@ -52,6 +51,8 @@ public class RepositoryController {
                 Toast.makeText(context, "삭제 성공", Toast.LENGTH_SHORT).show();
                 fileList.removeIf(f -> f.getId().equals(file.getId()));
                 adapter.submitList(RepositoryFilter.filter(fileList, ""));
+
+                submitFolderList(fileList, adapter);
             }
 
             @Override
@@ -61,12 +62,37 @@ public class RepositoryController {
         });
     }
 
-    // 🔹 폴더 불러오기 (Firestore → fileList에 저장 후 adapter 갱신)
+    //폴더 불러오기 (Firestore → fileList에 저장 후 adapter 갱신)
     public static void loadFolders(FirebaseUser user, List<RepositoryInfo> fileList, RepositoryListAdapter adapter) {
         FirebaseRepository.loadFolders(user, folders -> {
             fileList.clear();
             fileList.addAll(folders);
-            adapter.submitList(RepositoryFilter.filter(fileList, "")); // 전체 목록 표시
+            submitFolderList(fileList, adapter);
         }, e -> Log.e("FolderController", "폴더 불러오기 실패", e));
     }
-}
+
+    //폴더 실시간 리스너 (자동 UI 갱신) */
+    public static void listenFolders(FirebaseUser user, List<RepositoryInfo> fileList, RepositoryListAdapter adapter) {
+        if (user == null) return;
+
+        FirebaseRepository.listenFolders(user, folders -> {
+            fileList.clear();
+            fileList.addAll(folders);
+            submitFolderList(fileList, adapter);
+        }, e -> Log.e("RepositoryController", "폴더 실시간 불러오기 실패", e));
+    }
+        // 공통: RepositoryInfo 리스트 → FolderListItem 리스트로 변환 후 submit
+        private static void submitFolderList(List<RepositoryInfo> fileList, RepositoryListAdapter adapter) {
+            List<RepositoryListAdapter.FolderListItem> newList = new ArrayList<>();
+
+            // 항상 Add 버튼 먼저
+            newList.add(new RepositoryListAdapter.FolderListItem.Add());
+
+            // 나머지 폴더들 추가
+            for (RepositoryInfo repo : fileList) {
+                newList.add(new RepositoryListAdapter.FolderListItem.Row(repo));
+            }
+
+            adapter.submitList(newList);
+        }
+    }
