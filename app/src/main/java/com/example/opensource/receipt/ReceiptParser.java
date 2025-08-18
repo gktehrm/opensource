@@ -1,16 +1,19 @@
-package com.example.opensource;
+package com.example.opensource.receipt;
+
+import com.example.opensource.receipt.entity.Receipt;
+import com.example.opensource.receipt.entity.ReceiptItem;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
-        public class ReceiptParser {
+public class ReceiptParser {
 
-            public static Receipt parseFromJson(JSONObject json) {
-                Receipt receipt = new Receipt();
-                receipt.setStoreName(json.optString("storeName"));
-                receipt.setAddress(json.optString("address"));
-                receipt.setPhoneNumber(json.optString("phoneNumber"));
+    public static Receipt parseFromJson(JSONObject json) {
+        Receipt receipt = new Receipt();
+        receipt.setStoreName(json.optString("storeName"));
+        receipt.setAddress(json.optString("address"));
+        receipt.setPhoneNumber(json.optString("phoneNumber"));
         receipt.setTimestamp(json.optString("timestamp"));
 
         JSONArray list = json.optJSONArray("itemList");
@@ -21,8 +24,8 @@ import org.json.JSONArray;
                 int quantity = itemObj.optInt("quantity");
                 int unitPrice = itemObj.optInt("unitPrice");
 
-                Item item = new Item(productName, quantity, unitPrice);
-                receipt.addItem(item);
+                ReceiptItem receiptItem = new ReceiptItem(productName, quantity, unitPrice);
+                receipt.addItem(receiptItem);
             }
         }
 
@@ -37,12 +40,12 @@ import org.json.JSONArray;
         json.put("timestamp", receipt.getTimestamp());
 
         JSONArray list = new JSONArray();
-        for (Item item : receipt.getItemList()) {
+        for (ReceiptItem receiptItem : receipt.getItemList()) {
             JSONObject itemJson = new JSONObject();
-            itemJson.put("productName", item.getProductName());
-            itemJson.put("quantity", item.getQuantity());
-            itemJson.put("unitPrice", item.getUnitPrice());
-            itemJson.put("subTotal", item.getSubTotal());
+            itemJson.put("productName", receiptItem.getProductName());
+            itemJson.put("quantity", receiptItem.getQuantity());
+            itemJson.put("unitPrice", receiptItem.getUnitPrice());
+            itemJson.put("subTotal", receiptItem.getSubTotal());
             list.put(itemJson);
         }
 

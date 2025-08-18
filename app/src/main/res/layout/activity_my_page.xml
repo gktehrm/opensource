@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- 상단 프로필 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_profile" />
+
+        <TextView
+            android:id="@+id/tvNickname"
+            android:text="소프트웨어공학과"
+            android:textSize="16sp"
+            android:layout_marginStart="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <!-- 중앙 메뉴 -->
+    <Button
+        android:id="@+id/btnEditInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="내 정보 수정하기"
+        android:layout_marginTop="24dp"/>
+
+    <Button
+        android:id="@+id/btnMyFiles"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="내 파일"
+        android:layout_marginTop="12dp"/>
+</LinearLayout>

@@ -1,12 +1,12 @@
-package com.example.opensource;
+package com.example.opensource.receipt.entity;
 
-public class Item {
+public class ReceiptItem {
     private String itemName;
     private int quantity;
     private int unitPrice;
     private int subTotal;
 
-    public Item(String itemName, int quantity, int unitPrice) {
+    public ReceiptItem(String itemName, int quantity, int unitPrice) {
         this.itemName =  itemName;
         this.quantity = quantity;
         this.unitPrice = unitPrice;
