@@ -8,11 +8,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class ProfileManager {
     public static void getUserName(UsernameCallback callback) {
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        String uid = auth.getCurrentUser().getUid();
+        String uid = Objects.requireNonNull(auth.getCurrentUser()).getUid();
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
         firestore.collection("users").document(uid).get().addOnCompleteListener(task -> {
@@ -39,7 +40,7 @@ public class ProfileManager {
     public static void createUserProfile(String username, String email) {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        String uid = auth.getCurrentUser().getUid();
+        String uid = Objects.requireNonNull(auth.getCurrentUser()).getUid();
 
         Map<String, Object> user = new HashMap<>();
         user.put("username", username);
@@ -59,7 +60,7 @@ public class ProfileManager {
 
     public static void updateUserName(String newUsername, UpdateUsernameCallback callback) {
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        String uid = auth.getCurrentUser().getUid();
+        String uid = Objects.requireNonNull(auth.getCurrentUser()).getUid();
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
         Map<String, Object> updates = new HashMap<>();

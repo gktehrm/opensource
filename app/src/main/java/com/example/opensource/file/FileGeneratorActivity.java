@@ -162,7 +162,16 @@ public class FileGeneratorActivity extends AppCompatActivity { // 클래스 이�
             String reportFileName = "보고서_" + timeStamp + ".docx";
 
             // SAF를 사용하여 선택된 디렉터리에 문서를 생성하고 URI를 반환받습니다.
-            reportFileUri = DocumentsContract.createDocument(getContentResolver(), directoryUri, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", reportFileName);
+            String docId = DocumentsContract.getTreeDocumentId(directoryUri);
+            Uri dirDocumentUri = DocumentsContract.buildDocumentUriUsingTree(directoryUri, docId);
+
+            // SAF를 사용하여 선택된 디렉터리에 문서를 생성하고 URI를 반환받습니다.
+            reportFileUri = DocumentsContract.createDocument(
+                    getContentResolver(),
+                    dirDocumentUri, // 이렇게!
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    reportFileName
+            );
 
             if (reportFileUri == null) {
                 Toast.makeText(this, "보고서 파일을 생성할 수 없습니다.", Toast.LENGTH_SHORT).show();
@@ -215,7 +224,8 @@ public class FileGeneratorActivity extends AppCompatActivity { // 클래스 이�
         // R.drawable.ic_template_placeholder는 적절한 미리보기 이미지로 대체해야 합니다.
 //        allTemplates.add(new TemplateItem("워드_양식_1.docx", "Word", "android.resource://" + getPackageName() + "/" + R.raw.sample_word_template, R.drawable.ic_template_placeholder));
 //        allTemplates.add(new TemplateItem("엑셀_양식_1.xlsx", "Excel", "엑셀_양식_1_경로", R.drawable.ic_template_placeholder));
-        allTemplates.add(new TemplateItem("워드_양식_2.docx", "Word", "워드_양식_2_경로", R.drawable.tamplate));
+        String templateUri = "android.resource://" + getPackageName() + "/" + R.raw.report_template_1;
+        allTemplates.add(new TemplateItem("워드_양식_1.docx", "Word", templateUri, R.drawable.tamplate));
 
         // R.drawable.ic_template_placeholder 같은 리소스를 생성하거나 다른 리소스를 사용해야 합니다.
         // "경로..." 부분에는 실제 양식 파일 경로 또는 assets/raw에서 복사하는 메커니즘을 사용해야 합니다.

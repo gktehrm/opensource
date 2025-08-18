@@ -1,5 +1,7 @@
 package com.example.opensource.file;
 
+import android.util.Log;
+
 import com.example.opensource.receipt.ReceiptManager;
 import com.example.opensource.receipt.entity.Receipt;
 
@@ -26,7 +28,7 @@ public class DataLoader {
                 ));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("DataLoader", "JSON 파일 로드 중 오류", e);
         }
         return dataList;
     }
@@ -47,7 +49,7 @@ public class DataLoader {
                 ));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("DataLoader", "JSON 파일 로드 중 오류", e);
         }
         return dataList;
     }
