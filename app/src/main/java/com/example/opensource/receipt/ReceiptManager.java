@@ -102,6 +102,8 @@ public class ReceiptManager {
         return result;
     }
 
+
+
     // 표시 (콘솔용 디버그 출력)
     public void printAllReceipts() {
         for (int i = 0; i < receipts.size(); i++) {

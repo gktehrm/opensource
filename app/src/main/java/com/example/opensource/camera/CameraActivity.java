@@ -3,6 +3,7 @@ package com.example.opensource.camera;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import com.example.opensource.R;
 
@@ -24,6 +26,9 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -41,6 +46,7 @@ public class CameraActivity extends AppCompatActivity {
 
     public static final String TAG_CAMERA = "TAG_CAMERA";
     private boolean isProcessing = false;   // ⬅ 중복 호출 방지
+    private Bitmap lastCapturedBitmap;      // Uri 저장용
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,6 +81,8 @@ public class CameraActivity extends AppCompatActivity {
         Bitmap bitmap = Bitmap.createBitmap(result.cols(), result.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(result, bitmap);
         result.release();
+
+        lastCapturedBitmap = bitmap; //저장해 둠
 
         String prompt =
 """
@@ -114,8 +122,15 @@ receiptTotal: 금액 소계
             public void onSuccess(GenerateContentResponse res) {
                 String analysisResult = res.getText();
                 Log.d("Analysis Result", Objects.requireNonNull(analysisResult));
+
+                // Bitmap → Uri 변환
+                Uri imageUri = saveBitmapAndGetUri(lastCapturedBitmap);
+                // Intent에 JSON + 이미지 Uri 전달
                 Intent data = new Intent();
                 data.putExtra(EXTRA_ANALYSIS_JSON, analysisResult);
+                if (imageUri != null) {
+                    data.putExtra(EXTRA_IMAGE_URI, imageUri.toString());
+                }
                 setResult(RESULT_OK, data);
                 finish();
             }
@@ -128,4 +143,24 @@ receiptTotal: 금액 소계
             }
         }, executor);
     }
+
+    // Bitmap을 캐시 폴더에 저장하고 FileProvider Uri 리턴
+    private Uri saveBitmapAndGetUri(Bitmap bitmap) {
+        try {
+            File file = new File(getCacheDir(), "receipt_" + System.currentTimeMillis() + ".jpg");
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.close();
+
+            return FileProvider.getUriForFile(
+                    this,
+                    getPackageName() + ".provider",
+                    file
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
+

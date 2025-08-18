@@ -45,26 +45,25 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-
-    val cameraxVersion = "1.3.0"
-
+    //파이어베이스
+    implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
-
-
+    //카메라
     implementation("androidx.camera:camera-core:$cameraxVersion")
     implementation("androidx.camera:camera-camera2:$cameraxVersion")
     implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
     implementation("androidx.camera:camera-view:$cameraxVersion")
     implementation("androidx.camera:camera-extensions:$cameraxVersion")
     implementation("androidx.exifinterface:exifinterface:1.3.7")
-
-    implementation("com.google.firebase:firebase-auth:21.0.1")
-    implementation("com.google.firebase:firebase-firestore:24.4.5")
-    implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
-
+    //기타 라이브러리
     implementation("org.apache.poi:poi-ooxml:5.2.3")
     implementation("com.google.guava:guava:31.1-android")
-
     implementation("com.google.ai.client.generativeai:generativeai:0.3.0")
+    //Glide
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
+
 
 }

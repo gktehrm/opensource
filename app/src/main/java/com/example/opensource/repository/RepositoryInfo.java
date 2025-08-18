@@ -1,31 +1,47 @@
 package com.example.opensource.repository;
 
 public class RepositoryInfo {
-    private String title;
-    private String date;
+    private String id;
+    private String name; // 폴더 이름
+    private String lastModified;  // 마지막 수정 날짜
 
-    public RepositoryInfo(String title, String date) {
-        this.title = title;
-        this.date = date;
+    public RepositoryInfo() {
+    }
+    public RepositoryInfo(String name, String lastModified) {
+        this.name = name;
+        this.lastModified = lastModified;
+
     }
 
-    // 폴더 이름 가져오기
-    public String getTitle() {
-        return title;
+    public RepositoryInfo(String id, String name, String lastModified) {
+        this.name = name;
+        this.lastModified = lastModified;
+        this.id = id;
     }
 
-    // 폴더 이름 수정하기
-    public void setTitle(String title) {
-        this.title = title;
+    //  ID Getter/Setter
+    public String getId() {return id;}
+    public void setId(String id) {
+        this.id = id;
     }
 
-    // 날짜 가져오기
-    public String getDate() {
-        return date;
+    // Title Getter/Setter
+    public String getname() {
+        return name;
+    }
+    public void setname(String name) {
+        this.name = name;
     }
 
-    // 날짜 수정하기 (필요 시)
-    public void setDate(String date) {
-        this.date = date;
+
+    //  Date Getter
+    public String getlastModified() {
+        return lastModified;
     }
+    public void setlastModified(String lastModified) {
+        this.lastModified =lastModified;
+    }
+
+
+
 }

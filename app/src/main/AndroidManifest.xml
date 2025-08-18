@@ -22,6 +22,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.OpenSource"
         tools:targetApi="31">
+
         <activity
             android:name=".auth.LoginActivity"
             android:exported="true">
@@ -41,6 +42,17 @@
         <activity android:name=".menu.MyFileActivity" />
         <activity android:name=".camera.CameraActivity" />
         <activity android:name=".receipt.ReceiptActivity"/>
+
+        <!-- ✅ FileProvider 등록 (이미지 Uri 전달용) -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
 
     </application>
