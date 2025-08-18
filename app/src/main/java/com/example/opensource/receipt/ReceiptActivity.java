@@ -193,9 +193,8 @@ public class ReceiptActivity extends AppCompatActivity {
     private void bindReceiptToViews() {
         editStoreName.setText(nullToEmpty(receipt.getStoreName()));
         editAddress.setText(nullToEmpty(receipt.getAddress()));
-        editPhoneNumber.setText(nullToEmpty(receipt.getPhoneNumber()));
         editTimestamp.setText(nullToEmpty(receipt.getTimestamp()));
-        editReceiptTotal.setText(String.valueOf(receipt.getReceiptTotal()));
+        editReceiptTotal.setText(String.valueOf(receipt.getAmount()));
         editPaymentMethod.setText(nullToEmpty(receipt.getPaymentMethod()));
         editUserInformation.setText(nullToEmpty(receipt.getUserInformation()));
 
@@ -229,11 +228,10 @@ public class ReceiptActivity extends AppCompatActivity {
     private void applyViewsToReceipt() {
         receipt.setStoreName(editStoreName.getText().toString());
         receipt.setAddress(editAddress.getText().toString());
-        receipt.setPhoneNumber(editPhoneNumber.getText().toString());
         receipt.setTimestamp(editTimestamp.getText().toString());
         try {
             int total = Integer.parseInt(editReceiptTotal.getText().toString());
-            receipt.setReceiptTotal(total);
+            receipt.setAmount(total);
         } catch (NumberFormatException ignored) {}
         receipt.setPaymentMethod(editPaymentMethod.getText().toString());
         receipt.setUserInformation(editUserInformation.getText().toString());
@@ -244,9 +242,8 @@ public class ReceiptActivity extends AppCompatActivity {
         // 비어있거나 기존 값보다 유의미하면 덮어쓰기 (간단 규칙)
         if (isBetter(parsed.getStoreName(), receipt.getStoreName())) receipt.setStoreName(parsed.getStoreName());
         if (isBetter(parsed.getAddress(), receipt.getAddress())) receipt.setAddress(parsed.getAddress());
-        if (isBetter(parsed.getPhoneNumber(), receipt.getPhoneNumber())) receipt.setPhoneNumber(parsed.getPhoneNumber());
         if (isBetter(parsed.getTimestamp(), receipt.getTimestamp())) receipt.setTimestamp(parsed.getTimestamp());
-        if (parsed.getReceiptTotal() > 0) receipt.setReceiptTotal(parsed.getReceiptTotal());
+        if (parsed.getAmount() > 0) receipt.setAmount(parsed.getAmount());
         if (isBetter(parsed.getPaymentMethod(), receipt.getPaymentMethod())) receipt.setPaymentMethod(parsed.getPaymentMethod());
         if (isBetter(parsed.getUserInformation(), receipt.getUserInformation())) receipt.setUserInformation(parsed.getUserInformation());
 

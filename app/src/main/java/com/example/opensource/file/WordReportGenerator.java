@@ -48,7 +48,7 @@ public class WordReportGenerator {
                 row.getCell(0).setText(formattedDate);
                 row.getCell(1).setText(d.getStoreName());
                 row.getCell(2).setText(d.getContent());
-                row.getCell(3).setText(d.getAmount());
+                row.getCell(3).setText(String.valueOf(d.getAmount()));
                 row.getCell(4).setText(d.getNote());
             }
 

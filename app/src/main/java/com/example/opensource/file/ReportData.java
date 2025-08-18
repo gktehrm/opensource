@@ -4,10 +4,10 @@ public class ReportData {
     private String timestamp;
     private String storeName;
     private String content;
-    private String amount;
+    private int amount;
     private String note;
 
-    public ReportData(String timeStamp, String storeName, String content, String amount, String note) {
+    public ReportData(String timeStamp, String storeName, String content, int amount, String note) {
         this.timestamp = timeStamp;
         this.storeName = storeName;
         this.content = content;
@@ -39,11 +39,11 @@ public class ReportData {
         this.content = content;
     }
 
-    public String getAmount() {
+    public int getAmount() {
         return amount;
     }
 
-    public void setAmount(String amount) {
+    public void setAmount(int amount) {
         this.amount = amount;
     }
 

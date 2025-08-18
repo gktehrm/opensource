@@ -42,7 +42,7 @@ public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.VH> {
         Receipt r = data.get(pos);
         h.title.setText(r.getStoreName());
         h.date.setText(r.getTimestamp());
-        h.sub.setText(r.getReceiptTotal() + "원");
+        h.sub.setText(r.getAmount() + "원");
         h.itemView.setOnClickListener(v -> {
             if (listener != null) listener.onClick(pos, r);
         });

@@ -23,7 +23,7 @@ public class DataLoader {
                         receipt.getTimestamp(),
                         receipt.getStoreName(),
                         "내용",
-                        String.valueOf(receipt.getReceiptTotal()),
+                        receipt.getAmount(),
                         "비고"
                 ));
             }
@@ -33,24 +33,18 @@ public class DataLoader {
         return dataList;
     }
 
-    public static List<ReportData> loadFromJson(String jsonPath) {
-        List<ReportData> dataList = new ArrayList<>();
-        try {
-            String content = new String(Files.readAllBytes(Paths.get(jsonPath)));
-            JSONArray array = new JSONArray(content);
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject obj = array.getJSONObject(i);
-                dataList.add(new ReportData(
-                        obj.getString("사용날짜"),
-                        obj.getString("구입점명"),
-                        obj.getString("내용"),
-                        obj.getString("사용금액"),
-                        obj.optString("비고", "")
-                ));
-            }
-        } catch (Exception e) {
-            Log.e("DataLoader", "JSON 파일 로드 중 오류", e);
+    public static List<ReportData> fromReceipts(List<Receipt> receipts) {
+        List<ReportData> list = new ArrayList<>();
+        for (Receipt r : receipts) {
+            list.add(new ReportData(
+                    r.getTimestamp(),
+                    r.getStoreName(),
+                    "내용",   // 또는 항목 요약 정보
+                    r.getAmount(), // 금액
+                    "비고"   // 비고
+            ));
         }
-        return dataList;
+        return list;
     }
+
 }

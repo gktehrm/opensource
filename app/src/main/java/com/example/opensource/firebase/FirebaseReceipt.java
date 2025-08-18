@@ -3,6 +3,7 @@ package com.example.opensource.firebase;
 import android.net.Uri;
 import android.util.Log;
 
+import com.example.opensource.receipt.ReceiptParser;
 import com.example.opensource.receipt.entity.Receipt;
 import com.example.opensource.receipt.entity.ReceiptMapper;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -12,7 +13,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.*;
 import com.google.firebase.storage.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 // 문서: users/{uid}/repositories/{repoId}/receipts/{receiptId}
@@ -104,8 +107,7 @@ public class FirebaseReceipt {
     }
 
     /** 영수증 목록 불러오기 */
-    public void loadReceipts(String repoId,
-                             OnCompleteListener<QuerySnapshot> listener) {
+    public void loadReceipts(String repoId, OnCompleteListener<List<Receipt>> listener) {
         String uid = uidOrThrow();
 
         db.collection("users")
@@ -114,18 +116,22 @@ public class FirebaseReceipt {
                 .document(repoId)
                 .collection("receipts")
                 .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (DocumentSnapshot doc : task.getResult()) {
-                            Receipt r = doc.toObject(Receipt.class);
-                            if (r != null) {
-                                r.setId(doc.getId()); // 문서 ID 저장
-                            }
+                .addOnSuccessListener(querySnapshot -> {
+                    List<Receipt> receiptList = new ArrayList<>();
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        Receipt r = doc.toObject(Receipt.class);
+                        if (r != null) {
+                            r.setId(doc.getId());
+                            receiptList.add(r);
                         }
                     }
-                    listener.onComplete(task);
+                    listener.onComplete(Tasks.forResult(receiptList));
+                })
+                .addOnFailureListener(e -> {
+                    listener.onComplete(Tasks.forException(e));
                 });
     }
+
     private void updateRepoLastModified(String uid, String repoId) {
         String date = new java.text.SimpleDateFormat("yyyy.MM.dd a h:mm",
                 java.util.Locale.getDefault()).format(new java.util.Date());

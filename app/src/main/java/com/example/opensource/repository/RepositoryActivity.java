@@ -128,8 +128,12 @@ public class RepositoryActivity extends AppCompatActivity {
         });
 
         ImageButton btnConvert = findViewById(R.id.btnConvertToFile);
-        btnConvert.setOnClickListener(v ->
-                startActivity(new Intent(this, FileGeneratorActivity.class)));
+        btnConvert.setOnClickListener(v -> {
+            Intent intent = new Intent(this, FileGeneratorActivity.class);
+            intent.putExtra("repositoryId", repositoryId);  // 🔹 repositoryId 넘기기
+            startActivity(intent);
+        });
+
 
         ImageButton btnSort = findViewById(R.id.btnSort);
         btnSort.setOnClickListener(v -> showSortDialog());
@@ -143,11 +147,11 @@ public class RepositoryActivity extends AppCompatActivity {
         firebaseReceipt.loadReceipts(repositoryId, task -> {
             if (task.isSuccessful()) {
                 receiptList.clear();
-                for (DocumentSnapshot doc : task.getResult()) {
-                    Receipt r = ReceiptMapper.fromMap(doc.getData());
+                for (Receipt r : task.getResult()) {  // ✅ OK
+                    receiptList.add(r);
                     if (r != null) {
-                        r.setId(doc.getId());
-                        receiptList.add(r);
+                        r.setId(r.getId());  // 문서 ID 설정
+                        receiptList.add(r);   // 리스트에 추가
                     }
                 }
                 updateReceiptListUI();
