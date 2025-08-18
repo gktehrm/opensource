@@ -223,7 +223,7 @@ public class FileGeneratorActivity extends AppCompatActivity { // 클래스 이�
 
     // 선택된 파일 형식에 따라 양식 필터링
     private void filterTemplates() {
-        RadioButton selectedRadioButton = findViewById(fileTypeRadioGroup.getCheckedRadioButtonId());
+//        RadioButton selectedRadioButton = findViewById(fileTypeRadioGroup.getCheckedRadioButtonId());
         String selectedType = "";
         if (selectedRadioButton != null) {
             selectedType = selectedRadioButton.getText().toString();
