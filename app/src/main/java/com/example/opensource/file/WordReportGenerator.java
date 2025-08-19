@@ -21,14 +21,29 @@ public class WordReportGenerator {
      * @throws IOException 파일 I/O 작업 중 발생할 수 있는 예외
      */
     public static void generateReport(InputStream templateInputStream, OutputStream outputStream, List<ReportData> dataList, String authorName) throws Exception {
-        // try-with-resources 구문을 사용하여 XWPFDocument가 자동으로 닫히도록 합니다.
-        // 이렇게 하면 doc.close()를 명시적으로 호출할 필요가 없습니다.
+
         try (XWPFDocument doc = new XWPFDocument(templateInputStream)) {
             XWPFTable table = doc.getTables().get(0);
 
+// 기존 데이터 행 모두 삭제 (헤더 제외)
+            int existingRows = table.getNumberOfRows();
             for (int i = 0; i < dataList.size(); i++) {
                 ReportData d = dataList.get(i);
-                XWPFTableRow row = (i + 1 < table.getNumberOfRows()) ? table.getRow(i + 1) : table.createRow();
+
+                // 행 가져오거나 새로 생성
+                XWPFTableRow row;
+                if (i + 1 < table.getNumberOfRows()) {
+                    row = table.getRow(i + 1);
+                } else {
+                    row = table.createRow();
+                }
+
+                // 셀 수가 부족할 경우 추가
+                while (row.getTableCells().size() < 5) {
+                    row.addNewTableCell();
+                }
+
+                // 날짜 포맷 처리
                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy년 MM월 dd일 HH시 mm분");
 
@@ -37,14 +52,10 @@ public class WordReportGenerator {
                     Date parsedDate = inputFormat.parse(d.getTimestamp());
                     formattedDate = outputFormat.format(parsedDate);
                 } catch (Exception e) {
-                    formattedDate = d.getTimestamp();  // 파싱 실패 시 원본 그대로
+                    formattedDate = d.getTimestamp();
                 }
 
-                // 셀이 부족한 경우 새로 생성 (기존 로직 유지)
-                while (row.getTableCells().size() < 5) {
-                    row.addNewTableCell();
-                }
-
+                // 데이터 삽입
                 row.getCell(0).setText(formattedDate);
                 row.getCell(1).setText(d.getStoreName());
                 row.getCell(2).setText(d.getContent());
@@ -52,7 +63,9 @@ public class WordReportGenerator {
                 row.getCell(4).setText(d.getNote());
             }
 
-            // 하단 날짜 및 작성자 (기존 로직 유지)
+
+
+
             for (XWPFParagraph para : doc.getParagraphs()) {
                 String text = para.getText();
                 if (text.contains("0000년 00월 00일")) {
@@ -83,4 +96,5 @@ public class WordReportGenerator {
         } // XWPFDocument는 여기서 자동으로 닫힙니다.
         // catch 블록을 제거하고, 호출한 쪽(Activity)에서 예외를 처리하도록 throws를 사용합니다.
     }
+
 }
