@@ -1,6 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid android:color="#FFFFFF"/>
-    <corners android:radius="16dp"/>
-</shape>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="140dp"
+    android:viewportWidth="200"
+    android:viewportHeight="140">
+
+    <!-- 탭 (세로를 줄임: 기존 높이 40 → 25) -->
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M0,25
+                          L0,8
+                          Q0,0 10,0
+                          L80,0
+                          L100,25
+                          Z"/>
+
+    <!-- 본체 (세로를 늘림: 기존 V110 → V130) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#DDDDDD"
+        android:strokeWidth="2"
+        android:pathData="M0,25
+                          H200
+                          V80
+                          Q200,110 190,110
+                          H10
+                          Q0,110 0,100
+                          Z"/>
+</vector>

@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.OpenSource" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.ACCOUNTINGMASTER" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <!-- <receiptItem name="colorPrimary">@color/my_dark_primary</receiptItem> -->
     </style>

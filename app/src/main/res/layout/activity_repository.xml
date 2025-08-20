@@ -4,35 +4,41 @@
     android:orientation="vertical"
     android:padding="16dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:layout_marginTop="20dp">
 
     <!-- 상단 제목과 버튼 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="16dp"
-        android:paddingHorizontal="16dp">
+        android:layout_marginBottom="18dp"
+        android:paddingHorizontal="0dp">
+
+        <!-- 왼쪽: 파일명 -->
+
+        <!-- 오른쪽: 아이콘 2개 묶음 -->
 
         <TextView
             android:id="@+id/tvFileName"
-            android:text="파일명"
-            android:textSize="20sp"
-            android:textStyle="bold"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:paddingBottom="8dp"
+            android:text="파일명"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="end">
+            android:orientation="horizontal">
 
             <ImageButton
                 android:id="@+id/btnOcrScan"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:src="@drawable/ic_ocr"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="OCR 스캔"
@@ -40,8 +46,8 @@
 
             <ImageButton
                 android:id="@+id/btnConvertToFile"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:src="@drawable/ic_convert"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="파일로 변환"

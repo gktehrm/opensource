@@ -97,16 +97,6 @@
                     tools:text="주소: 전주시 덕진구 어딘가 123" />
 
                 <TextView
-                    android:id="@+id/tvPhone"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp"
-                    android:lineSpacingExtra="4dp"
-                    android:lineSpacingMultiplier="1.2"
-                    android:layout_marginTop="10dp"
-                    tools:text="전화번호: 010-1234-5678" />
-
-                <TextView
                     android:id="@+id/tvDate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

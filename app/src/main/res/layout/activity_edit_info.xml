@@ -3,13 +3,25 @@
     android:orientation="vertical"
     android:padding="16dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:text="내 정보 수정하기"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+        android:paddingBottom="10dp"/>
 
     <EditText
         android:id="@+id/etNickname"
         android:hint="새 닉네임 입력"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
         android:inputType="textPersonName" />
 
     <Button
@@ -17,5 +29,8 @@
         android:text="저장"
         android:layout_marginTop="16dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:minHeight="55dp"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#1E3A8A" />
 </LinearLayout>

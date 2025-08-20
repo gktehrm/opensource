@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     tools:context=".MainActivity">
 
     <!-- activity_main.xml -->
@@ -12,10 +13,11 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:orientation="vertical"
-        android:background="#F4F4F4"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp">
+        android:layout_marginTop="5dp"
+        android:padding="16dp"
+        >
 
         <!-- 상단 프로필 + 마이페이지 버튼 -->
         <LinearLayout
@@ -42,9 +44,8 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:src="@drawable/ic_arrow"
-                android:layout_gravity="end"
+                android:layout_marginStart="1dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_weight="1"
                 android:contentDescription="@null"/>
         </LinearLayout>
 
@@ -64,7 +65,7 @@
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="3dp"/>
 
     </LinearLayout>
 

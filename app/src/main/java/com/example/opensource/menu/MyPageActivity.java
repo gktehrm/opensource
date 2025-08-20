@@ -10,6 +10,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.opensource.R;
+import com.example.opensource.auth.LoginActivity;  // 🔹 LoginActivity import 추가
+import com.google.firebase.auth.FirebaseAuth;
 
 public class MyPageActivity extends AppCompatActivity {
 
@@ -50,11 +52,29 @@ public class MyPageActivity extends AppCompatActivity {
             editInfoLauncher.launch(editIntent);
         });
 
-        Button btnMyFiles = findViewById(R.id.btnMyFiles);
-        btnMyFiles.setOnClickListener(v -> {
-            Intent fileIntent = new Intent(MyPageActivity.this, MyFileActivity.class);
-            intent.putExtra("nickname", nickname);
-            startActivity(fileIntent);
+//        Button btnMyFiles = findViewById(R.id.btnMyFiles);
+//        btnMyFiles.setOnClickListener(v -> {
+//            Intent fileIntent = new Intent(MyPageActivity.this, MyFileActivity.class);
+//            intent.putExtra("nickname", nickname);
+//            startActivity(fileIntent);
+//        });
+
+        // 🔹 로그아웃 버튼
+        Button btnLogout = findViewById(R.id.btnLogout);
+        btnLogout.setOnClickListener(v -> {
+            // Firebase 로그아웃
+            FirebaseAuth.getInstance().signOut();
+
+            // 로그인 화면으로 이동
+            Intent loginIntent = new Intent(MyPageActivity.this, LoginActivity.class);
+            loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(loginIntent);
+
+            finish(); // 현재 Activity 종료
         });
     }
 }
+
+
+
+

@@ -82,7 +82,7 @@ public class RepositoryListAdapter extends ListAdapter<RepositoryListAdapter.Fol
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_ADD) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.add_card_bg, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_add_card, parent, false);
             return new AddViewHolder(view);
         } else {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_file_card, parent, false);

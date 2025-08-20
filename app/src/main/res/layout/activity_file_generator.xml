@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:paddingTop="24dp"
     tools:context=".FileGeneratorActivity">
 
     <TextView
@@ -11,16 +13,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:text="파일 형식 선택:"
-        android:textSize="16sp"
+        android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <RadioGroup
         android:id="@+id/file_type_radio_group"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="55dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
@@ -51,7 +53,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
         android:text="파일 양식 리스트:"
-        android:textSize="16sp"
+        android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/file_type_radio_group" />
 
@@ -70,11 +72,15 @@
     <Button
         android:id="@+id/import_template_button"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="55dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
+        app:cornerRadius="8dp"
         android:text="양식 불러오기"
+        android:textSize="15sp"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#1E3A8A"
         app:layout_constraintBottom_toTopOf="@id/generate_report_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -82,11 +88,15 @@
     <Button
         android:id="@+id/generate_report_button"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="55dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="44dp"
+        android:textSize="15sp"
         android:text="파일 생성하기"
+        app:cornerRadius="8dp"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#1E3A8A"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

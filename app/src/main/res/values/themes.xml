@@ -1,9 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.OpenSource" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.ACCOUNTINGMASTER" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <receiptItem name="colorPrimary">@color/my_light_primary</receiptItem> -->
     </style>
 
-    <style name="Theme.OpenSource" parent="Base.Theme.OpenSource" />
+    <style name="Theme.ACCOUNTINGMASTER" parent="Base.Theme.ACCOUNTINGMASTER" />
 </resources>
