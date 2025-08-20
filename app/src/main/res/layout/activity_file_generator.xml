@@ -5,53 +5,37 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
-    android:paddingTop="24dp"
+    android:padding="16dp"
     tools:context=".FileGeneratorActivity">
 
     <TextView
-        android:id="@+id/file_type_label"
+        android:id="@+id/tvTitle"
+        android:text="파일 생성하기"
+        android:textStyle="bold"
+        android:textSize="20sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
-        android:text="파일 형식 선택:"
-        android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:paddingTop="20dp"
+        android:paddingBottom="10dp"/>
 
     <RadioGroup
         android:id="@+id/file_type_radio_group"
         android:layout_width="0dp"
-        android:layout_height="55dp"
+        android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/file_type_label">
-
-        <RadioButton
-            android:id="@+id/radio_word"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Word"
-            android:checked="true"/>
-
-        <RadioButton
-            android:id="@+id/radio_excel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Excel" />
-    </RadioGroup>
+        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
     <TextView
         android:id="@+id/template_list_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="2dp"
         android:text="파일 양식 리스트:"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
