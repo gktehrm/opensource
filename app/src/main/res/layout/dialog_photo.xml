@@ -4,6 +4,15 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
+    <!-- ✅ 원근 보정 토글 추가 -->
+    <CheckBox
+        android:id="@+id/toggle_warp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="원근 보정 사용하기"
+        android:checked="true"
+        android:layout_marginBottom="8dp"/>
+
     <ImageView
         android:id="@+id/dialog_image"
         android:layout_width="match_parent"
@@ -16,7 +25,8 @@
         android:orientation="horizontal"
         android:gravity="center"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp">
 
         <Button
             android:id="@+id/retry_button"
