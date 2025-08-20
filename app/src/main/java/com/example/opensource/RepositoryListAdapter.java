@@ -28,10 +28,12 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * RepositoryListAdapter (폴더 리스트 + Add 버튼 관리)
- * - DiffUtil + ListAdapter 적용
- * - 날짜 포맷 유틸 사용
- * - Context 의존성 제거
+ * RepositoryListAdapter
+ * <p>
+ * 저장소(폴더) 리스트와 "추가(Add)" 버튼을 관리하는 RecyclerView 어댑터.
+ * - {@link DiffUtil} + {@link ListAdapter} 적용
+ * - 날짜 포맷 유틸 제공
+ * - Context 직접 의존성을 최소화
  */
 public class RepositoryListAdapter extends ListAdapter<RepositoryListAdapter.FolderListItem, RecyclerView.ViewHolder> {
 
@@ -39,14 +41,22 @@ public class RepositoryListAdapter extends ListAdapter<RepositoryListAdapter.Fol
     private static final int TYPE_FOLDER = 1;
     private final FolderActionListener actionListener;
 
+    /**
+     * RepositoryListAdapter 생성자
+     *
+     * @param listener 폴더 추가/삭제/수정 이벤트 리스너
+     */
     public RepositoryListAdapter(FolderActionListener listener) {
         super(DIFF_CALLBACK);
         this.actionListener = listener;
     }
 
-    // --------- DiffUtil ----------
+    /**
+     * DiffUtil 구현체
+     * 리스트의 변경사항을 효율적으로 감지
+     */
     private static final DiffUtil.ItemCallback<FolderListItem> DIFF_CALLBACK =
-            new DiffUtil.ItemCallback<FolderListItem>() {
+            new DiffUtil.ItemCallback<>() {
                 @Override
                 public boolean areItemsTheSame(@NonNull FolderListItem oldItem, @NonNull FolderListItem newItem) {
                     if (oldItem instanceof FolderListItem.Add && newItem instanceof FolderListItem.Add) {
@@ -102,11 +112,20 @@ public class RepositoryListAdapter extends ListAdapter<RepositoryListAdapter.Fol
     }
 
     // ---------- ViewHolder ----------
+
+    /**
+     * "Add" 버튼을 표시하는 ViewHolder
+     */
     public static class AddViewHolder extends RecyclerView.ViewHolder {
         public AddViewHolder(@NonNull View itemView) {
             super(itemView);
         }
 
+        /**
+         * Add 버튼 클릭 이벤트 바인딩
+         *
+         * @param listener 폴더 추가 리스너
+         */
         public void bind(FolderActionListener listener) {
             itemView.setOnClickListener(v -> {
                 if (listener != null) listener.onAddFolder();
@@ -114,6 +133,9 @@ public class RepositoryListAdapter extends ListAdapter<RepositoryListAdapter.Fol
         }
     }
 
+    /**
+     * 실제 폴더 항목을 표시하는 ViewHolder
+     */
     public static class FolderViewHolder extends RecyclerView.ViewHolder {
         TextView textTitle, textDate;
         ImageButton menuButton;
@@ -125,6 +147,13 @@ public class RepositoryListAdapter extends ListAdapter<RepositoryListAdapter.Fol
             menuButton = itemView.findViewById(R.id.menuButton);
         }
 
+        /**
+         * 폴더 데이터를 ViewHolder에 바인딩
+         *
+         * @param file    저장소 정보
+         * @param adapter 어댑터 인스턴스
+         * @param listener 이벤트 리스너
+         */
         public void bind(RepositoryInfo file, RepositoryListAdapter adapter, FolderActionListener listener) {
             textTitle.setText(file.getname());
             textDate.setText("마지막 수정 " + file.getlastModified());
@@ -137,7 +166,7 @@ public class RepositoryListAdapter extends ListAdapter<RepositoryListAdapter.Fol
                 itemView.getContext().startActivity(intent);
             });
 
-            // 메뉴 버튼
+            // 메뉴 버튼 클릭 이벤트
             menuButton.setOnClickListener(v -> {
                 PopupMenu popup = new PopupMenu(v.getContext(), v);
                 popup.getMenuInflater().inflate(R.menu.folder_menu, popup.getMenu());
@@ -157,6 +186,13 @@ public class RepositoryListAdapter extends ListAdapter<RepositoryListAdapter.Fol
             });
         }
 
+        /**
+         * 폴더 이름 수정 다이얼로그 표시
+         *
+         * @param file     수정할 RepositoryInfo
+         * @param adapter  어댑터 (리스트 갱신용)
+         * @param listener 수정 이벤트 리스너
+         */
         private void showEditDialog(RepositoryInfo file, RepositoryListAdapter adapter, FolderActionListener listener) {
             AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
             builder.setTitle("폴더 이름 수정");
@@ -210,9 +246,15 @@ public class RepositoryListAdapter extends ListAdapter<RepositoryListAdapter.Fol
     }
 
     // ---------- Item 타입 ----------
+
+    /**
+     * RecyclerView에 표시될 아이템 유형 (Add 버튼 / Folder 항목)
+     */
     public static abstract class FolderListItem {
+        /** "Add" 버튼 항목 */
         public static class Add extends FolderListItem { }
 
+        /** 폴더 항목 */
         public static class Row extends FolderListItem {
             public final RepositoryInfo folder;
 
@@ -222,17 +264,34 @@ public class RepositoryListAdapter extends ListAdapter<RepositoryListAdapter.Fol
         }
     }
 
+    /**
+     * 폴더 동작 이벤트 리스너
+     */
     public interface FolderActionListener {
+        /** 새로운 폴더 추가 이벤트 */
         void onAddFolder();
+
+        /** 폴더 삭제 이벤트 */
         void onDeleteFolder(RepositoryInfo file);
+
+        /** 폴더 이름 변경 이벤트 */
         void onRenameFolder(RepositoryInfo file, String newName);
     }
 
     // ---------- 날짜 유틸 ----------
+
+    /**
+     * 날짜 관련 유틸 클래스
+     */
     public static class DateUtils {
         private static final SimpleDateFormat FORMAT =
                 new SimpleDateFormat("yyyy.MM.dd a h:mm", Locale.getDefault());
 
+        /**
+         * 현재 시간을 지정된 포맷으로 반환
+         *
+         * @return 현재 시각 문자열
+         */
         public static String now() {
             return FORMAT.format(new Date());
         }

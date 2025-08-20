@@ -5,33 +5,44 @@ import com.example.opensource.RepositoryListAdapter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-//파일 검색 필터
+
+/**
+ * 저장소 검색 필터
+ * - 제목, 초성, 날짜 기준으로 검색어 필터링
+ */
 public class RepositoryFilter {
 
-    // 한글 초성 리스트
     private static final char[] CHO = {
             'ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ',
             'ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'
     };
 
-    // 문자열을 초성 문자열로 변환
+    /**
+     * 문자열을 초성 문자열로 변환
+     */
     private static String getChosung(String str) {
         StringBuilder result = new StringBuilder();
         for (char c : str.toCharArray()) {
-            if (c >= 0xAC00 && c <= 0xD7A3) { // 한글 완성형 범위
+            if (c >= 0xAC00 && c <= 0xD7A3) {
                 int uniVal = c - 0xAC00;
                 int choIdx = uniVal / (21 * 28);
                 result.append(CHO[choIdx]);
             } else {
-                result.append(c); // 한글 아니면 그대로 둠
+                result.append(c);
             }
         }
         return result.toString();
     }
 
+    /**
+     * 검색어를 기반으로 폴더 목록을 필터링
+     *
+     * @param folders 원본 폴더 리스트
+     * @param query   검색어
+     * @return 필터링된 폴더 리스트
+     */
     public static List<RepositoryListAdapter.FolderListItem> filter(List<RepositoryInfo> folders, String query) {
         String q = query == null ? "" : query.trim().toLowerCase(Locale.getDefault());
-
         List<RepositoryListAdapter.FolderListItem> filtered = new ArrayList<>();
 
         for (RepositoryInfo f : folders) {
@@ -39,25 +50,19 @@ public class RepositoryFilter {
                 String title = f.getname() == null ? "" : f.getname();
                 String date = f.getlastModified() == null ? "" : f.getlastModified();
 
-                // 소문자 변환
                 String titleLower = title.toLowerCase(Locale.getDefault());
                 String dateLower = date.toLowerCase(Locale.getDefault());
-
-                // 초성 변환
                 String cho = getChosung(title);
 
-                // 조건: 검색어가 비었거나 / 제목 포함하거나 / 초성 포함하거나 / 날짜 포함
                 if (q.isEmpty() || titleLower.contains(q) || cho.contains(q) || dateLower.contains(q)) {
                     filtered.add(new RepositoryListAdapter.FolderListItem.Row(f));
                 }
             }
         }
 
-        // 검색어가 없을 때만 + 버튼 추가
         if (q.isEmpty()) {
             filtered.add(0, new RepositoryListAdapter.FolderListItem.Add());
         }
-
         return filtered;
     }
 }

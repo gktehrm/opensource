@@ -12,6 +12,9 @@ import com.example.opensource.receipt.entity.Receipt;
 
 import java.util.List;
 
+/**
+ * 영수증 RecyclerView 어댑터
+ */
 public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.VH> {
 
     public interface OnItemClickListener {

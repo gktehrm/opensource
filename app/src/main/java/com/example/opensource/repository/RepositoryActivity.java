@@ -25,6 +25,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 저장소 화면 액티비티
+ * - 영수증 목록 표시
+ * - 영수증 생성/수정
+ * - Firestore 연동
+ */
 public class RepositoryActivity extends AppCompatActivity {
 
     public static final String EXTRA_MODE = "mode";
@@ -142,7 +148,7 @@ public class RepositoryActivity extends AppCompatActivity {
         if (fileName != null) tvFileName.setText(fileName);
     }
 
-    /** 🔹 Firestore에서 repoId에 해당하는 영수증 불러오기 */
+    /** Firestore에서 해당 repositoryId의 영수증을 불러오기 */
     private void loadReceiptsFromFirebase() {
         firebaseReceipt.loadReceipts(repositoryId, task -> {
             if (task.isSuccessful()) {
@@ -158,7 +164,7 @@ public class RepositoryActivity extends AppCompatActivity {
         });
     }
 
-
+    /** 영수증 정렬 다이얼로그 표시 */
     private void showSortDialog() {
         String[] sortOptions = {"최신순", "오래된순"};
         new AlertDialog.Builder(this)
@@ -177,6 +183,7 @@ public class RepositoryActivity extends AppCompatActivity {
                 .show();
     }
 
+    /** UI 갱신 */
     private void updateReceiptListUI() {
         receiptAdapter.setReceipts(receiptList);
         if (receiptList == null || receiptList.isEmpty()) {
