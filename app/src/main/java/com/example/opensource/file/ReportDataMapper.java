@@ -2,16 +2,16 @@ package com.example.opensource.file;
 
 import com.example.opensource.receipt.entity.Receipt;
 
-import java.util.*;
-
 public class ReportDataMapper {
     public static ReportData map(Receipt receipt) {
+        if (receipt == null) return null;
+
         return new ReportData(
                 receipt.getTimestamp(),
                 receipt.getStoreName(),
-                "내용",
+                receipt.getUserInformation(),
                 receipt.getAmount(),
-                "비고"
-            );
-        }
+                ""
+        );
+    }
 }

@@ -29,14 +29,14 @@ class TemplateAdapter extends RecyclerView.Adapter<TemplateAdapter.ViewHolder> {
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_template_preview, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_template_preview, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         TemplateItem item = templates.get(position);
-        // TODO: 실제 이미지 또는 썸네일 로드 (예: Glide, Picasso 라이브러리 사용 또는 직접 생성)
         holder.previewImageView.setImageResource(item.getPreviewImageResId());
         holder.fileTypeText.setText(item.getFileType());
         holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
