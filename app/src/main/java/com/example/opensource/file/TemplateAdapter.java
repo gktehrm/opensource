@@ -14,6 +14,7 @@ import com.example.opensource.R;
 import java.util.List;
 
 class TemplateAdapter extends RecyclerView.Adapter<TemplateAdapter.ViewHolder> {
+    private int selectedPosition = RecyclerView.NO_POSITION;
     private List<TemplateItem> templates;
     private OnItemClickListener listener;
 
@@ -37,9 +38,20 @@ class TemplateAdapter extends RecyclerView.Adapter<TemplateAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         TemplateItem item = templates.get(position);
+
         holder.previewImageView.setImageResource(item.getPreviewImageResId());
-        holder.fileTypeText.setText(item.getFileType());
-        holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
+        holder.fileNameText.setText(item.getFileName());
+
+        // 선택된 경우 표시
+        holder.itemView.setBackgroundResource(
+                position == selectedPosition ? R.drawable.selected_border : 0
+        );
+
+        holder.itemView.setOnClickListener(v -> {
+            selectedPosition = holder.getAdapterPosition();
+            notifyDataSetChanged(); // 전체 새로고침 (간단한 방법)
+            listener.onItemClick(item);
+        });
     }
 
     @Override
@@ -49,12 +61,12 @@ class TemplateAdapter extends RecyclerView.Adapter<TemplateAdapter.ViewHolder> {
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView previewImageView;
-        TextView fileTypeText;
+        TextView fileNameText;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             previewImageView = itemView.findViewById(R.id.template_preview_image);
-            fileTypeText = itemView.findViewById(R.id.template_file_type_text);
+            fileNameText = itemView.findViewById(R.id.template_file_name_text);
         }
     }
 }

@@ -82,7 +82,6 @@ public class FileGeneratorActivity extends AppCompatActivity {
 
         templateAdapter = new TemplateAdapter(allTemplates, item -> {
             selectedTemplate = item;
-            Toast.makeText(this, selectedTemplate.getFileName() + " 선택됨", Toast.LENGTH_SHORT).show();
         });
 
         templateRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -106,7 +105,7 @@ public class FileGeneratorActivity extends AppCompatActivity {
         String fileName = getFileNameFromUri(uri);
         String fileType = fileName != null && fileName.endsWith(".docx") ? "Word" : "Unknown";
 
-        TemplateItem newTemplate = new TemplateItem(fileName, fileType, uri.toString(), R.drawable.tamplate);
+        TemplateItem newTemplate = new TemplateItem(fileName, fileType, uri.toString(), R.drawable.docs);
         allTemplates.add(newTemplate);
         templateAdapter.notifyDataSetChanged();
 
@@ -169,6 +168,20 @@ public class FileGeneratorActivity extends AppCompatActivity {
 
                 WordReportGenerator.generateReport(templateStream, outputStream, dataList, authorName);
                 Toast.makeText(this, "보고서 생성 완료", Toast.LENGTH_LONG).show();
+
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(reportFileUri, "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+                shareIntent.putExtra(Intent.EXTRA_STREAM, reportFileUri);
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                Intent chooser = Intent.createChooser(shareIntent, "보고서 열기 또는 공유");
+                chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] { intent });
+                startActivity(chooser);
+
             }
 
         } catch (Exception e) {
@@ -189,6 +202,9 @@ public class FileGeneratorActivity extends AppCompatActivity {
     private void loadInitialTemplates() {
         String uri = "android.resource://" + getPackageName() + "/" + R.raw.report_template_1;
         allTemplates.add(new TemplateItem("워드_양식_1.docx", "Word", uri, R.drawable.tamplate));
+
+        uri = "android.resource://" + getPackageName() + "/" + R.raw.report_template_2;
+        allTemplates.add(new TemplateItem("워드_양식_1.docx", "Word", uri, R.drawable.tamplate2));
     }
 
     private void openFilePicker() {
