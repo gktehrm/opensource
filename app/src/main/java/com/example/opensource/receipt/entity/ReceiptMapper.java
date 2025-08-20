@@ -17,12 +17,13 @@ public class ReceiptMapper {
         map.put("userInformation", r.getUserInformation());
         map.put("amount", r.getAmount());
 
+
         // itemList -> List<Map>
         List<Map<String, Object>> items = new ArrayList<>();
         if (r.getItemList() != null) {
             for (ReceiptItem it : r.getItemList()) {
                 Map<String, Object> m = new HashMap<>();
-                m.put("productName", it.getProductName());
+                m.put("itemName", it.getProductName());
                 m.put("quantity", it.getQuantity());
                 m.put("unitPrice", it.getUnitPrice());
                 m.put("subTotal", it.getSubTotal());
@@ -60,7 +61,7 @@ public class ReceiptMapper {
         if (items != null) {
             for (Map<String, Object> m : items) {
                 ReceiptItem it = new ReceiptItem(
-                        (String) m.get("productName"),
+                        (String) m.get("itemName"),
                         ((Long) m.get("quantity")).intValue(),
                         ((Long) m.get("unitPrice")).intValue()
                 );

@@ -1,8 +1,6 @@
 // com/example/opensource/receipt/entity/Receipt.java
 package com.example.opensource.receipt.entity;
 
-import com.google.firebase.firestore.DocumentSnapshot;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +13,7 @@ public class Receipt implements Serializable {
     private String timestamp;
     private String note;
 
-    private List<ReceiptItem> receiptItemList;
+    private List<ReceiptItem> itemList;
 
     private int receiptTotal;
     private String paymentMethod;
@@ -27,7 +25,7 @@ public class Receipt implements Serializable {
     private String imageUrl;
 
     public Receipt() {
-        receiptItemList = new ArrayList<>();
+        itemList = new ArrayList<>();
         amount = 0;
     }
 
@@ -44,7 +42,7 @@ public class Receipt implements Serializable {
     public String getTimestamp() { return timestamp; }
     public void setTimestamp(String timestamp) { this.timestamp = timestamp; }
 
-    public List<ReceiptItem> getItemList() { return receiptItemList; }
+    public List<ReceiptItem> getItemList() { return itemList; }
 
     public int getAmount() { return amount; }
     public void setAmount(int amount) { this.amount = amount; }
@@ -63,19 +61,19 @@ public class Receipt implements Serializable {
 
     // item 조작 시 총액 갱신
     public void addItem(ReceiptItem receiptItem) {
-        receiptItemList.add(receiptItem);
+        itemList.add(receiptItem);
         receiptTotal += receiptItem.getSubTotal();
     }
     public void removeItem(int index) {
-        if (index >= 0 && index < receiptItemList.size()) {
-            receiptTotal -= receiptItemList.get(index).getSubTotal();
-            receiptItemList.remove(index);
+        if (index >= 0 && index < itemList.size()) {
+            receiptTotal -= itemList.get(index).getSubTotal();
+            itemList.remove(index);
         }
     }
     public void updateItem(int index, ReceiptItem newReceiptItem) {
-        if (index >= 0 && index < receiptItemList.size()) {
-            receiptTotal -= receiptItemList.get(index).getSubTotal();
-            receiptItemList.set(index, newReceiptItem);
+        if (index >= 0 && index < itemList.size()) {
+            receiptTotal -= itemList.get(index).getSubTotal();
+            itemList.set(index, newReceiptItem);
             receiptTotal += newReceiptItem.getSubTotal();
         }
     }

@@ -8,6 +8,8 @@ public class ReceiptItem implements Serializable {
     private int unitPrice;
     private int subTotal;
 
+    public ReceiptItem() {}
+
     public ReceiptItem(String itemName, int quantity, int unitPrice) {
         this.itemName =  itemName;
         this.quantity = quantity;

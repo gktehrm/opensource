@@ -46,14 +46,7 @@
             android:layout_height="wrap_content"
             android:hint="주소"
             android:inputType="text"/>
-
-        <!-- 연락처 -->
-        <EditText
-            android:id="@+id/editPhoneNumber"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="연락처"
-            android:inputType="phone"/>
+        
 
         <!-- 거래일시 -->
         <EditText

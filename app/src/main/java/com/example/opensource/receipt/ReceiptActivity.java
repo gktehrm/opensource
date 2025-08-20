@@ -124,7 +124,7 @@ public class ReceiptActivity extends AppCompatActivity {
         imageReceipt = findViewById(R.id.imageReceipt);
         editStoreName = findViewById(R.id.editStoreName);
         editAddress = findViewById(R.id.editAddress);
-        editPhoneNumber = findViewById(R.id.editPhoneNumber);
+        //editPhoneNumber = findViewById(R.id.editPhoneNumber);
         editTimestamp = findViewById(R.id.editTimestamp);
         editReceiptTotal = findViewById(R.id.editReceiptTotal);
         editPaymentMethod = findViewById(R.id.editPaymentMethod);

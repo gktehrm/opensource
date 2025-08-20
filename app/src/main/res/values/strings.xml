@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ACCOUNTINGMASTER</string>
+    <string name="app_name">회계마스터</string>
     <string name="more_options">더보기</string>
     <string name="gemini_api_key" translatable="false">AIzaSyD-_hLLMv7GwQ2KcoOi8A1xU_GKPxJmL10</string>
 </resources>

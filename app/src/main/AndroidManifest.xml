@@ -39,7 +39,6 @@
         <activity android:name=".menu.MyPageActivity" />
         <activity android:name=".file.FileGeneratorActivity" />
         <activity android:name=".menu.EditMyInfoActivity" />
-        <activity android:name=".menu.MyFileActivity" />
         <activity android:name=".camera.CameraActivity" />
         <activity android:name=".receipt.ReceiptActivity"/>
 
