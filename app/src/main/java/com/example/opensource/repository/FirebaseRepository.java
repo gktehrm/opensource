@@ -1,5 +1,4 @@
 package com.example.opensource.repository;
-//firestore 파일 가져오기 /저장 담당
 import android.content.Context;
 
 import com.example.opensource.firebase.RepositoryManager;
@@ -11,9 +10,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 
-
+/**
+ * Firestore와의 폴더 데이터 통신 담당 클래스
+ */
 public class FirebaseRepository {
 
+    /** 폴더 불러오기 */
     public static void loadFolders(FirebaseUser user,
                                    final java.util.function.Consumer<List<RepositoryInfo>> onSuccess,
                                    final java.util.function.Consumer<Exception> onFailure) {
@@ -29,7 +31,7 @@ public class FirebaseRepository {
         });
     }
 
-    /** 🔹 실시간 리스너 (자동 UI 갱신) */
+     /** 폴더 실시간 리스너 */
     public static void listenFolders(FirebaseUser user,
                                      final Consumer<List<RepositoryInfo>> onSuccess,
                                      final Consumer<Exception> onFailure) {
@@ -46,7 +48,7 @@ public class FirebaseRepository {
         });
     }
 
-
+    /** 폴더 저장 */
     public static void saveFolder(Context context, String folderName,
                                   final java.util.function.Consumer<RepositoryInfo> onSuccess,
                                   final java.util.function.Consumer<Exception> onFailure) {

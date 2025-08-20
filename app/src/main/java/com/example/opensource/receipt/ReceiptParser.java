@@ -14,7 +14,6 @@ public class ReceiptParser {
         Receipt receipt = new Receipt();
         receipt.setStoreName(json.optString("storeName"));
         receipt.setAddress(json.optString("address"));
-        receipt.setPhoneNumber(json.optString("phoneNumber"));
         receipt.setTimestamp(json.optString("timestamp"));
 
         // 선택 필드 보완
@@ -38,9 +37,9 @@ public class ReceiptParser {
         }
         // JSON에 receiptTotal이 있으면 우선 적용 (OCR결과가 직접 계산해서 넣어준 경우)
         if (json.has("receiptTotal")) {
-            receipt.setReceiptTotal(json.optInt("receiptTotal", total));
+            receipt.setAmount(json.optInt("receiptTotal", total));
         } else {
-            receipt.setReceiptTotal(total);
+            receipt.setAmount(total);
         }
         return receipt;
     }
@@ -49,7 +48,6 @@ public class ReceiptParser {
         JSONObject json = new JSONObject();
         json.put("storeName", receipt.getStoreName());
         json.put("address", receipt.getAddress());
-        json.put("phoneNumber", receipt.getPhoneNumber());
         json.put("timestamp", receipt.getTimestamp());
         json.put("paymentMethod", receipt.getPaymentMethod());
         json.put("userInformation", receipt.getUserInformation());
@@ -65,7 +63,7 @@ public class ReceiptParser {
             list.put(itemJson);
         }
         json.put("itemList", list);
-        json.put("receiptTotal", receipt.getReceiptTotal());
+        json.put("Amount", receipt.getAmount());
         return json;
     }
 }

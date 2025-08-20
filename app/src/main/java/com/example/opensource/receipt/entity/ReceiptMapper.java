@@ -12,11 +12,10 @@ public class ReceiptMapper {
         Map<String, Object> map = new HashMap<>();
         map.put("storeName", r.getStoreName());
         map.put("address", r.getAddress());
-        map.put("phoneNumber", r.getPhoneNumber());
         map.put("timestamp", r.getTimestamp());          // "yyyy-MM-dd HH:mm:ss" 가정
         map.put("paymentMethod", r.getPaymentMethod());
         map.put("userInformation", r.getUserInformation());
-        map.put("receiptTotal", r.getReceiptTotal());
+        map.put("amount", r.getAmount());
 
         // itemList -> List<Map>
         List<Map<String, Object>> items = new ArrayList<>();
@@ -43,12 +42,11 @@ public class ReceiptMapper {
         Receipt r = new Receipt();
         r.setStoreName((String) map.get("storeName"));
         r.setAddress((String) map.get("address"));
-        r.setPhoneNumber((String) map.get("phoneNumber"));
         r.setTimestamp((String) map.get("timestamp"));
         r.setPaymentMethod((String) map.get("paymentMethod"));
         r.setUserInformation((String) map.get("userInformation"));
-        if (map.get("receiptTotal") != null) {
-            r.setReceiptTotal(((Long) map.get("receiptTotal")).intValue());
+        if (map.get("amount") != null) {
+            r.setAmount(((Long) map.get("amount")).intValue());
         }
 
         // Firestore에서 imageUrl도 읽어오기

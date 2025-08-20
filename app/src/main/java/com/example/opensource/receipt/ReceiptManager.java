@@ -108,7 +108,7 @@ public class ReceiptManager {
     public void printAllReceipts() {
         for (int i = 0; i < receipts.size(); i++) {
             Receipt r = receipts.get(i);
-            System.out.println("[" + i + "] " + r.getStoreName() + " | " + r.getTimestamp() + " | " + r.getReceiptTotal() + "원");
+            System.out.println("[" + i + "] " + r.getStoreName() + " | " + r.getTimestamp() + " | " + r.getAmount() + "원");
         }
     }
 }

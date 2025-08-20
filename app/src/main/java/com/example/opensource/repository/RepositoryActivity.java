@@ -25,6 +25,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 저장소 화면 액티비티
+ * - 영수증 목록 표시
+ * - 영수증 생성/수정
+ * - Firestore 연동
+ */
 public class RepositoryActivity extends AppCompatActivity {
 
     public static final String EXTRA_MODE = "mode";
@@ -128,8 +134,12 @@ public class RepositoryActivity extends AppCompatActivity {
         });
 
         ImageButton btnConvert = findViewById(R.id.btnConvertToFile);
-        btnConvert.setOnClickListener(v ->
-                startActivity(new Intent(this, FileGeneratorActivity.class)));
+        btnConvert.setOnClickListener(v -> {
+            Intent intent = new Intent(this, FileGeneratorActivity.class);
+            intent.putExtra("repositoryId", repositoryId);  // 🔹 repositoryId 넘기기
+            startActivity(intent);
+        });
+
 
         ImageButton btnSort = findViewById(R.id.btnSort);
         btnSort.setOnClickListener(v -> showSortDialog());
@@ -138,17 +148,14 @@ public class RepositoryActivity extends AppCompatActivity {
         if (fileName != null) tvFileName.setText(fileName);
     }
 
-    /** 🔹 Firestore에서 repoId에 해당하는 영수증 불러오기 */
+    /** Firestore에서 해당 repositoryId의 영수증을 불러오기 */
     private void loadReceiptsFromFirebase() {
         firebaseReceipt.loadReceipts(repositoryId, task -> {
             if (task.isSuccessful()) {
                 receiptList.clear();
-                for (DocumentSnapshot doc : task.getResult()) {
-                    Receipt r = ReceiptMapper.fromMap(doc.getData());
-                    if (r != null) {
-                        r.setId(doc.getId());
-                        receiptList.add(r);
-                    }
+                for (Receipt r : task.getResult()) {
+                    if (r == null) continue;
+                    receiptList.add(r);
                 }
                 updateReceiptListUI();
             } else {
@@ -157,6 +164,7 @@ public class RepositoryActivity extends AppCompatActivity {
         });
     }
 
+    /** 영수증 정렬 다이얼로그 표시 */
     private void showSortDialog() {
         String[] sortOptions = {"최신순", "오래된순"};
         new AlertDialog.Builder(this)
@@ -175,6 +183,7 @@ public class RepositoryActivity extends AppCompatActivity {
                 .show();
     }
 
+    /** UI 갱신 */
     private void updateReceiptListUI() {
         receiptAdapter.setReceipts(receiptList);
         if (receiptList == null || receiptList.isEmpty()) {

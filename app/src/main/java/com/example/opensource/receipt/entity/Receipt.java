@@ -1,16 +1,19 @@
 // com/example/opensource/receipt/entity/Receipt.java
 package com.example.opensource.receipt.entity;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Receipt implements Serializable {
     private String id;
+    private int amount;
     private String storeName;
     private String address;
-    private String phoneNumber;
     private String timestamp;
+    private String note;
 
     private List<ReceiptItem> receiptItemList;
 
@@ -25,7 +28,7 @@ public class Receipt implements Serializable {
 
     public Receipt() {
         receiptItemList = new ArrayList<>();
-        receiptTotal = 0;
+        amount = 0;
     }
 
     // Getter/Setter
@@ -38,16 +41,13 @@ public class Receipt implements Serializable {
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
 
-    public String getPhoneNumber() { return phoneNumber; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
-
     public String getTimestamp() { return timestamp; }
     public void setTimestamp(String timestamp) { this.timestamp = timestamp; }
 
     public List<ReceiptItem> getItemList() { return receiptItemList; }
 
-    public int getReceiptTotal() { return receiptTotal; }
-    public void setReceiptTotal(int receiptTotal) { this.receiptTotal = receiptTotal; }
+    public int getAmount() { return amount; }
+    public void setAmount(int amount) { this.amount = amount; }
 
     public String getPaymentMethod() { return paymentMethod; }
     public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
@@ -60,7 +60,6 @@ public class Receipt implements Serializable {
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
-
 
     // item 조작 시 총액 갱신
     public void addItem(ReceiptItem receiptItem) {

@@ -174,25 +174,33 @@ public class CameraXFragment extends Fragment implements CameraListener, Contour
                             Mat original = new Mat();
                             Utils.bitmapToMat(bitmap, original);
 
+                            // 화면 표시용 원본 비트맵(회전 적용된 상태)
+                            Bitmap originalBitmapForDialog = bitmap;
+
                             float[] qx = frameAnalyzer.getLastQuadXs();
                             float[] qy = frameAnalyzer.getLastQuadYs();
 
-                            Mat warped = null;
-                            if (qx != null && qy != null && qx.length == 4 && qy.length == 4) {
-                                warped = com.example.opensource.camera.processing.RectifyUtils.rectifyWithQuad(original, qx, qy);
+                            Bitmap warpedBitmapForDialog = null;
+                            try {
+                                Mat warped = null;
+                                if (qx != null && qy != null && qx.length == 4 && qy.length == 4) {
+                                    warped = com.example.opensource.camera.processing.RectifyUtils.rectifyWithQuad(original, qx, qy);
+                                }
+                                if (warped != null && !warped.empty()) {
+                                    warpedBitmapForDialog = Bitmap.createBitmap(warped.cols(), warped.rows(), Bitmap.Config.ARGB_8888);
+                                    Utils.matToBitmap(warped, warpedBitmapForDialog);
+                                    warped.release();
+                                }
+                            } finally {
+                                original.release();
                             }
 
-                            if (warped != null && !warped.empty()) {
-                                Bitmap warpedBitmap = Bitmap.createBitmap(warped.cols(), warped.rows(), Bitmap.Config.ARGB_8888);
-                                Utils.matToBitmap(warped, warpedBitmap);
-                                warped.release();
-                                bitmap = warpedBitmap;
-                            }
-                            original.release();
+                            Bitmap finalOriginal = originalBitmapForDialog;
+                            Bitmap finalWarped = warpedBitmapForDialog;
 
-                            Bitmap finalBitmap = bitmap;
                             requireActivity().runOnUiThread(() -> {
-                                PhotoPreviewDialogFragment dialog = PhotoPreviewDialogFragment.newInstance(finalBitmap);
+                                PhotoPreviewDialogFragment dialog =
+                                        PhotoPreviewDialogFragment.newInstance(finalOriginal, finalWarped);
                                 dialog.setTargetFragment(CameraXFragment.this, 0);
                                 dialog.show(getParentFragmentManager(), "PhotoPreview");
                             });
