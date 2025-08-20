@@ -49,6 +49,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void navigateToMainActivity() {
         Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+        intent.putExtra("username", ((EditText) findViewById(R.id.editTextUsername)).getText().toString());
         startActivity(intent);
         finish();
     }

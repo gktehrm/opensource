@@ -1,4 +1,3 @@
-// com/example/opensource/camera/CameraActivity.java
 package com.example.opensource.camera;
 
 import android.content.Intent;
@@ -24,19 +23,24 @@ import com.example.opensource.R;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 
-import com.google.ai.client.generativeai.GenerativeModel;
-import com.google.ai.client.generativeai.java.GenerativeModelFutures;
-import com.google.ai.client.generativeai.type.Content;
-import com.google.ai.client.generativeai.type.GenerateContentResponse;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.Objects;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import android.os.Handler;
+import android.os.Looper;
+
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 
 public class CameraActivity extends AppCompatActivity {
     static {
@@ -53,7 +57,6 @@ public class CameraActivity extends AppCompatActivity {
     private boolean isProcessing = false;   // 중복 호출 방지
     private Bitmap lastCapturedBitmap;      // Uri 저장용
 
-    // 🔹 앨범에서 이미지 선택 런처 (READ 권한 없이도 사용 가능한 GetContent)
     private final ActivityResultLauncher<String> pickImageLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
                 if (uri == null) {
@@ -81,8 +84,7 @@ public class CameraActivity extends AppCompatActivity {
 
                     lastCapturedBitmap = bitmap;
 
-                    String prompt = getReceiptPrompt();
-                    analyzeBitmapWithGemini(bitmap, prompt);
+                    uploadReceiptToServer(bitmap);
                 } catch (Exception e) {
                     Log.e("ImagePick", "Failed to decode image: " + e.getMessage());
                     setResult(RESULT_CANCELED);
@@ -164,68 +166,123 @@ public class CameraActivity extends AppCompatActivity {
 
         lastCapturedBitmap = bitmap; // 저장해 둠
 
-        String prompt = getReceiptPrompt();
-        analyzeBitmapWithGemini(bitmap, prompt);
+        uploadReceiptToServer(bitmap);
     }
 
-    // 🔹 프롬프트 생성 분리 (카메라/앨범 공통 사용)
-    private String getReceiptPrompt() {
-        return """
-보낸 이미지는 영수증입니다. \
-다음 JSON 스키마로만 응답하세요. \
-{"storeName":"","address":"","phoneNumber":"","timestamp":"yyyy-MM-dd HH:mm:ss",\
-"paymentMethod":"","userInformation":"","itemList":[{"productName":"","quantity":1,"unitPrice":1000}],"receiptTotal":0}\
-각각은 다음을 의미합니다.\s
-storeName: 상호명(가게 이름)
-address: 주소(실제 주소)
-phoneNumber: 연락처
-timestamp: 거래 일시(yyyy-MM-dd HH:mm:ss)
-paymentMethod: 결제 정보(카드 결제, 현금 결제 등)
-userInformation: 사용 정보(음식점, 물품 구매, 여가 생활, 카페, 기타 등 이 부분은 자동으로 작성)
-itemList: 주문 내역
-productName: 상품명
-quantity: 상품 개수
-unitPrice: 단가
-receiptTotal: 금액 소계
-""";
-    }
+    private void uploadReceiptToServer(Bitmap bitmap) {
+        // Bitmap → File 변환
+        File file = new File(getCacheDir(), "receipt.jpg");
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
 
-    private void analyzeBitmapWithGemini(Bitmap bitmapToAnalyze, String prompt) {
-        GenerativeModel gm = new GenerativeModel("gemini-2.5-flash", getString(R.string.gemini_api_key));
-        GenerativeModelFutures model = GenerativeModelFutures.from(gm);
+        // Retrofit or OkHttp 사용 예시 (여기서는 OkHttp)
+        OkHttpClient client = new OkHttpClient();
 
-        Content content = new Content.Builder()
-                .addImage(bitmapToAnalyze)
-                .addText(prompt)
+        RequestBody fileBody = RequestBody.create(file, MediaType.parse("image/jpeg"));
+        MultipartBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", file.getName(), fileBody)
                 .build();
 
-        Executor executor = Executors.newSingleThreadExecutor();
-        ListenableFuture<GenerateContentResponse> response = model.generateContent(content);
-        Futures.addCallback(response, new FutureCallback<>() {
-            @Override
-            public void onSuccess(GenerateContentResponse res) {
-                String analysisResult = res.getText();
-                Log.d("Analysis Result", Objects.requireNonNull(analysisResult));
+        Request request = new Request.Builder()
+                .url("http://opensource.jabcho.org.com:8800/detect")
+                .post(requestBody)
+                .build();
 
-                // Bitmap → Uri 변환
-                Uri imageUri = saveBitmapAndGetUri(lastCapturedBitmap);
-                // Intent에 JSON + 이미지 Uri 전달
-                Intent data = new Intent();
-                data.putExtra(EXTRA_ANALYSIS_JSON, analysisResult);
-                if (imageUri != null) {
-                    data.putExtra(EXTRA_IMAGE_URI, imageUri.toString());
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e("Upload Error", "Detect API failed: " + e.getMessage());
+                runOnUiThread(() -> {
+                    setResult(RESULT_CANCELED);
+                    finish();
+                });
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    Log.e("Upload Error", "Detect API response not successful");
+                    runOnUiThread(() -> {
+                        setResult(RESULT_CANCELED);
+                        finish();
+                    });
+                    return;
                 }
-                setResult(RESULT_OK, data);
-                finish();
-            }
 
-            @Override
-            public void onFailure(@NonNull Throwable t) {
-                Log.e("Analysis Error", "Analysis failed: " + t.getMessage());
-                setResult(RESULT_CANCELED);
-                finish();
+                String body = response.body().string();
+                try {
+                    JSONObject obj = new JSONObject(body);
+                    String session = obj.getString("session");
+                    pollProcessResult(session);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        }, executor);
+        });
+    }
+
+    private void pollProcessResult(String session) {
+        OkHttpClient client = new OkHttpClient();
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        final Runnable[] pollTask = new Runnable[1];
+
+        pollTask[0] = new Runnable() {
+            @Override
+            public void run() {
+                Request request = new Request.Builder()
+                        .url("http://opensource.jabcho.org.com:8800/process?session=" + session)
+                        .get()
+                        .build();
+
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        Log.e("Process Error", "Process API failed: " + e.getMessage());
+                        handler.postDelayed(pollTask[0], 2000); // ✅ 자기 자신 재호출
+                    }
+
+                    @Override
+                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                        if (!response.isSuccessful()) {
+                            handler.postDelayed(pollTask[0], 2000);
+                            return;
+                        }
+
+                        String body = response.body().string();
+                        try {
+                            JSONObject obj = new JSONObject(body);
+                            if (obj.has("status") && "processing".equals(obj.getString("status"))) {
+                                handler.postDelayed(pollTask[0], 2000); // ✅ 다시 poll
+                            } else {
+                                // 결과 도착
+                                String analysisResult = obj.toString();
+                                Log.d("Analysis Result", analysisResult);
+
+                                Uri imageUri = saveBitmapAndGetUri(lastCapturedBitmap);
+                                Intent data = new Intent();
+                                data.putExtra(EXTRA_ANALYSIS_JSON, analysisResult);
+                                if (imageUri != null) {
+                                    data.putExtra(EXTRA_IMAGE_URI, imageUri.toString());
+                                }
+                                setResult(RESULT_OK, data);
+                                finish();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            handler.postDelayed(pollTask[0], 2000);
+                        }
+                    }
+                });
+            }
+        };
+
+        handler.post(pollTask[0]); // 최초 실행
     }
 
     // Bitmap을 캐시 폴더에 저장하고 FileProvider Uri 리턴
