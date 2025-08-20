@@ -1,7 +1,7 @@
 package com.example.opensource;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
+// import android.content.SharedPreferences; // 사용 안함
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
@@ -84,8 +84,8 @@ public class MainActivity extends AppCompatActivity {
         searchBar = findViewById(R.id.searchBar);
         folderList = new ArrayList<>();
 
-        // position 0번에 항상 플러스 카드가 고정되도록 null 추가
-        folderList.add(null);
+        // ❌ 중복의 원인이던 null 센티널 제거
+        // folderList.add(null);
 
         adapter = new RepositoryListAdapter(new RepositoryListAdapter.FolderActionListener() {
             @Override
@@ -104,9 +104,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+
         //  초기 화면에 "Add 버튼"만 세팅
         List<RepositoryListAdapter.FolderListItem> initList = new ArrayList<>();
         initList.add(new RepositoryListAdapter.FolderListItem.Add());
@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         // 검색창 연결
         RepositorySearchHelper.setupSearch(searchBar, folderList, adapter);
 
-        // Firestore에서 폴더 불러오기
+        // Firestore에서 폴더 실시간 불러오기 (UI 갱신은 리스너가 전담)
         RepositoryController.listenFolders(user, folderList, adapter);
     }
 
@@ -125,12 +125,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showAddFolderDialog() {
-        RepositoryController.showAddFolderDialog(this, folderList, adapter);
+        // ✅ Firestore에만 추가하고, 리스트/어댑터는 건드리지 않음 (리스너가 갱신)
+        RepositoryController.showAddFolderDialog(this, user);
     }
 
     private void deleteFolder(RepositoryInfo file) {
-        RepositoryController.deleteFolder(this, file, folderList, adapter);
-
+        // ✅ Firestore에서만 삭제하고, 리스트/어댑터는 건드리지 않음 (리스너가 갱신)
+        RepositoryController.deleteFolder(this, file);
     }
 
     @Override

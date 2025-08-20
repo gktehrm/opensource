@@ -147,12 +147,9 @@ public class RepositoryActivity extends AppCompatActivity {
         firebaseReceipt.loadReceipts(repositoryId, task -> {
             if (task.isSuccessful()) {
                 receiptList.clear();
-                for (Receipt r : task.getResult()) {  // ✅ OK
+                for (Receipt r : task.getResult()) {
+                    if (r == null) continue;
                     receiptList.add(r);
-                    if (r != null) {
-                        r.setId(r.getId());  // 문서 ID 설정
-                        receiptList.add(r);   // 리스트에 추가
-                    }
                 }
                 updateReceiptListUI();
             } else {
@@ -160,6 +157,7 @@ public class RepositoryActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void showSortDialog() {
         String[] sortOptions = {"최신순", "오래된순"};
